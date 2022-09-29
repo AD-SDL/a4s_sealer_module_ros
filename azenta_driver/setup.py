@@ -1,17 +1,8 @@
-import os
 from setuptools import setup, find_packages
 
 
 install_requires = ['pyserial']
-#with open('requirements.txt') as reqs:
-#    for line in reqs.readlines():
-#        req = line.strip()
-#        if not req or req.startswith('#'):
-#            continue
-#        install_requires.append(req)
 
-
-##this is weird. 
 package_name = 'azenta_driver'
 
 setup(
