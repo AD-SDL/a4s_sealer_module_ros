@@ -28,13 +28,6 @@ def generate_launch_description():
         parameters = [config]
     )
 
-# #        Node(
-# #            package='sp_module_client',
-# #            namespace='sp_module',
-# #            executable='cameraNode',
-# #            name='cameraNode'
-# #        ),
-
     ld.add_action(peeler)
     ld.add_action(sealer)
 
