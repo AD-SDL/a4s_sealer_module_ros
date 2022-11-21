@@ -20,14 +20,14 @@ setup(
 
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Doga Ozgulbas, Rafael Vescovi',
-    maintainer_email='dozgulbas@anl.gov, ravescovi@anl.gov',
+    maintainer='Doga Ozgulbas',
+    maintainer_email='dozgulbas@anl.gov',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'pf400_description_client = pf400_description.pf400_description_client:main'
+            'azenta_description_client = azenta_description.azenta_description_client:main'
         ],
     },
 )
