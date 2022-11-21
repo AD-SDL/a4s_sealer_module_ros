@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 from glob import glob
 
-package_name = 'pf400_description'
+package_name = 'azenta_description'
 
 setup(
     name=package_name,
