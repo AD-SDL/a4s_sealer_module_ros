@@ -1,6 +1,13 @@
 <?xml version="1.0"?>
 <robot name="PCR Workcell" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <!-- Materials -->
+  <xacro:include filename="$(find pf400_description)/urdf/materials.xacro" />
+  
+  <!-- PF400 -->
+  <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
+  <xacro:pf400 prefix="pf400/"/>
+  
   <!-- Peeler -->
   <xacro:include filename="$(find pf400_description)/urdf/peeler.urdf.xacro" />
   <xacro:Peeler prefix="peeler/"/>
