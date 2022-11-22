@@ -82,7 +82,7 @@ def generate_launch_description():
     condition=UnlessCondition(fake_hardware),
     package = "azenta_description",
     executable = 'azenta_description_client',
-    name = 'azentaDescriptionNode',
+    name = 'AzentaDescriptionNode',
     output = 'screen'
   )
    
