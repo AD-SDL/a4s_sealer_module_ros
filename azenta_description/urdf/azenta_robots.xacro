@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot name="PCR Workcell" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Peeler -->
+  <xacro:include filename="$(find pf400_description)/urdf/peeler.urdf.xacro" />
+  <xacro:Peeler prefix="peeler/"/>
+
+  <!-- Sealer -->
+  <xacro:include filename="$(find pf400_description)/urdf/sealer.urdf.xacro" />
+  <xacro:Sealer prefix="sealer/"/>
+  
+   
+  <joint name="Peeler_Base" type="fixed">
+    <parent link="module_carts/cart_6"/>
+    <child link="peeler/peeler_base"/>
+    <axis xyz="0 0 0"/>
+    <origin xyz="-0.13 0.15 1.042" rpy="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="Sealer_Base" type="fixed">
+    <parent link="module_carts/cart_6"/>
+    <child link="sealer/sealer_base"/>
+    <axis xyz="0 0 0"/>
+    <origin xyz="0.27 -0.53 1.042" rpy="0 0 0"/> 
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
