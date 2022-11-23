@@ -11,9 +11,9 @@
     <color rgba="0.6 0.6 0.6 1"/>
   </material>
 
-  <!-- PF400 -->
+  <!-- Peeler -->
   <xacro:include filename="$(find azenta_description)/urdf/peeler.urdf.xacro" />
-  <xacro:pf400 prefix="peeler/"/>
+  <xacro:Peeler prefix="peeler/"/>
   
 
 </robot>

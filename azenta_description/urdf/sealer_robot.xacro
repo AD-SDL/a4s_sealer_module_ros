@@ -11,9 +11,9 @@
     <color rgba="0.6 0.6 0.6 1"/>
   </material>
 
-  <!-- PF400 -->
+  <!-- Sealer -->
   <xacro:include filename="$(find azenta_description)/urdf/sealer.urdf.xacro" />
-  <xacro:pf400 prefix="pf400/"/>
+  <xacro:Sealer prefix="sealer/"/>
   
 
 </robot>

@@ -2,18 +2,18 @@
 <robot name="Azenta Robots" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- Materials -->
-  <xacro:include filename="$(find pf400_description)/urdf/materials.xacro" />
+  <xacro:include filename="$(find azenta_description)/urdf/materials.xacro" />
   
-  <!-- PF400 -->
-  <xacro:include filename="$(find pf400_description)/urdf/PF400.urdf.xacro" />
-  <xacro:pf400 prefix="pf400/"/>
+  <!-- Module Carts -->
+  <xacro:include filename="$(find azenta_description)/urdf/module_carts.urdf.xacro" />
+  <xacro:Module_Carts prefix="module_carts/"/>
   
   <!-- Peeler -->
-  <xacro:include filename="$(find pf400_description)/urdf/peeler.urdf.xacro" />
+  <xacro:include filename="$(find azenta_description)/urdf/peeler.urdf.xacro" />
   <xacro:Peeler prefix="peeler/"/>
 
   <!-- Sealer -->
-  <xacro:include filename="$(find pf400_description)/urdf/sealer.urdf.xacro" />
+  <xacro:include filename="$(find azenta_description)/urdf/sealer.urdf.xacro" />
   <xacro:Sealer prefix="sealer/"/>
   
    
