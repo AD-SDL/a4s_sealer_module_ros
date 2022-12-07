@@ -8,13 +8,13 @@
     <visual>
       <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/sealer_base.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://azenta_description/meshes/sealer_base.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="pink"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/sealer_base.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://azenta_description/meshes/sealer_base.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
     </collision>
@@ -24,13 +24,13 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 1.5708 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/sealer_plate.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://azenta_description/meshes/sealer_plate.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/sealer_plate.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://azenta_description/meshes/sealer_plate.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0 0 0" rpy="0 1.5708 0"/>
     </collision>
@@ -38,7 +38,7 @@
 
   <!-- Joints -->
 
-  <joint name="Sealer_Plate_Joint" type="fixed">
+  <joint name="Sealer_Plate_Joint" type="revolute">
     <parent link="${prefix}sealer_base"/>
     <child link="${prefix}sealer_plate"/>
     <axis xyz="0 0 1"/>
