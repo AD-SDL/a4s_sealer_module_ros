@@ -64,19 +64,19 @@ class AzentaDescriptionClient(Node):
         # joint_states_peeler = self.peeler.refresh_joint_state()
         # joint_states_sealer = self.peeler.refresh_joint_state()
 
-        joint_states_peeler = [0]
-        joint_states_sealer = [0]
+        joint_states_peeler = [0.0]
+        joint_states_sealer = [0.0]
 
         peeler_joint_msg = JointState()
         peeler_joint_msg.header = Header()
         peeler_joint_msg.header.stamp = self.get_clock().now().to_msg()
-        peeler_joint_msg.name = ['peeler_plate']
+        peeler_joint_msg.name = ['Peeler_Plate_Joint']
         peeler_joint_msg.position = joint_states_peeler
 
         sealer_joint_msg = JointState()
         sealer_joint_msg.header = Header()
         sealer_joint_msg.header.stamp = self.get_clock().now().to_msg()
-        sealer_joint_msg.name = ['sealer_plate']
+        sealer_joint_msg.name = ['Sealer_Plate_Joint']
         sealer_joint_msg.position = joint_states_sealer
         # print(joint_states)
 
@@ -87,9 +87,9 @@ class AzentaDescriptionClient(Node):
         sealer_joint_msg.effort = []
 
         self.joint_publisher.publish(peeler_joint_msg)
-        self.get_logger().info('Publishing joint states: "%s"' % str(joint_states_peeler))
+        self.get_logger().info('Publishing peeler joint states: "%s"' % str(joint_states_peeler))
         self.joint_publisher.publish(sealer_joint_msg)
-        self.get_logger().info('Publishing joint states: "%s"' % str(joint_states_sealer))
+        self.get_logger().info('Publishing sealer joint states: "%s"' % str(joint_states_sealer))
 
 def main(args=None):
     rclpy.init(args=args)
