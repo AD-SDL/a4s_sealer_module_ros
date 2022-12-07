@@ -13,14 +13,26 @@ from std_srvs.srv import Empty
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 
-from pf400_driver.pf400_driver import PF400
+# TODO: UNCOMMENT BELOW LINES TO CONNECT AZENTA WHEN THEY ARE READY TO USE
 
-class PF400DescriptionClient(Node):
+# from azenta_driver.peeler_driver import BROOKS_PEELER_CLIENT  # import peeler driver
+# from azenta_driver.sealer_driver import A4S_SEALER_CLIENT  # import sealer driver
 
-    def __init__(self, NODE_NAME = 'PF400DescriptionNode'):
+class AzentaDescriptionClient(Node):
+
+    def __init__(self, NODE_NAME = 'AzentaDescriptionNode'):
         super().__init__(NODE_NAME)
 
-        self.pf400 = PF400("192.168.50.50",10000)
+        # TODO: UNCOMMENT BELOW LINES TO CONNECT AZENTA WHEN THEY ARE READY TO USE
+
+        # self.declare_parameter('sealer_port', '/dev/ttyUSB1')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
+        # PORT = self.get_parameter('sealer_port') 
+
+        # self.declare_parameter('peeler_port', '/dev/ttyUSB0')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
+        # PORT = self.get_parameter('peeler_port')    # Renaming parameter to general form so it can be used for other nodes too
+
+        # self.peeler = BROOKS_PEELER_CLIENT(PORT.value)
+        # self.sealer = A4S_SEALER_CLIENT(PORT.value)
 
         timer_period = 0.1  # seconds
 
@@ -37,7 +49,7 @@ class PF400DescriptionClient(Node):
     
     def stateCallback(self):
         '''
-        Publishes the pf400_description state to the 'state' topic. 
+        Publishes the azenta_description state to the 'state' topic. 
         '''
         msg = String()
         msg.data = 'State: %s' % self.state
@@ -47,39 +59,53 @@ class PF400DescriptionClient(Node):
 
 
     def joint_state_publisher_callback(self):
-        
-        # self.get_logger().info("BUGG")
-        joint_states = self.pf400.refresh_joint_state()
-        pf400_joint_msg = JointState()
-        pf400_joint_msg.header = Header()
-        pf400_joint_msg.header.stamp = self.get_clock().now().to_msg()
-        pf400_joint_msg.name = ['J1', 'J2', 'J3', 'J4', 'J5','J5_mirror', 'J6']
-        pf400_joint_msg.position = joint_states
+        # TODO: UNCOMMENT BELOW LINES TO CONNECT AZENTA WHEN THEY ARE READY TO USE
+
+        # joint_states_peeler = self.peeler.refresh_joint_state()
+        # joint_states_sealer = self.peeler.refresh_joint_state()
+
+        joint_states_peeler = [0]
+        joint_states_sealer = [0]
+
+        peeler_joint_msg = JointState()
+        peeler_joint_msg.header = Header()
+        peeler_joint_msg.header.stamp = self.get_clock().now().to_msg()
+        peeler_joint_msg.name = ['peeler_plate']
+        peeler_joint_msg.position = joint_states_peeler
+
+        sealer_joint_msg = JointState()
+        sealer_joint_msg.header = Header()
+        sealer_joint_msg.header.stamp = self.get_clock().now().to_msg()
+        sealer_joint_msg.name = ['sealer_plate']
+        sealer_joint_msg.position = joint_states_sealer
         # print(joint_states)
 
-        # pf400_joint_msg.position = [0.01, -1.34, 1.86, -3.03, 0.05, 0.05, 0.91]
-        pf400_joint_msg.velocity = []
-        pf400_joint_msg.effort = []
+        # azenta_joint_msg.position = [0.01, -1.34, 1.86, -3.03, 0.05, 0.05, 0.91]
+        peeler_joint_msg.velocity = []
+        peeler_joint_msg.effort = []
+        sealer_joint_msg.velocity = []
+        sealer_joint_msg.effort = []
 
-        self.joint_publisher.publish(pf400_joint_msg)
-        self.get_logger().info('Publishing joint states: "%s"' % joint_states)
-
+        self.joint_publisher.publish(peeler_joint_msg)
+        self.get_logger().info('Publishing joint states: "%s"' % str(joint_states_peeler))
+        self.joint_publisher.publish(sealer_joint_msg)
+        self.get_logger().info('Publishing joint states: "%s"' % str(joint_states_sealer))
 
 def main(args=None):
     rclpy.init(args=args)
     try:
-        pf400_joint_state_publisher = PF400DescriptionClient()
+        azenta_joint_state_publisher = AzentaDescriptionClient()
         executor = MultiThreadedExecutor()
-        executor.add_node(pf400_joint_state_publisher)
+        executor.add_node(azenta_joint_state_publisher)
 
         try:
-            pf400_joint_state_publisher.get_logger().info('Beginning client, shut down with CTRL-C')
+            azenta_joint_state_publisher.get_logger().info('Beginning client, shut down with CTRL-C')
             executor.spin()
         except KeyboardInterrupt:
-            pf400_joint_state_publisher.get_logger().info('Keyboard interrupt, shutting down.\n')
+            azenta_joint_state_publisher.get_logger().info('Keyboard interrupt, shutting down.\n')
         finally:
             executor.shutdown()
-            pf400_joint_state_publisher.destroy_node()
+            azenta_joint_state_publisher.destroy_node()
     finally:
         rclpy.shutdown()
 
