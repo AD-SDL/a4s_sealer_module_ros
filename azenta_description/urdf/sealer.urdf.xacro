@@ -38,7 +38,7 @@
 
   <!-- Joints -->
 
-  <joint name="Sealer_Plate_Joint" type="revolute">
+  <joint name="Sealer_Plate_Joint" type="prismatic">
     <parent link="${prefix}sealer_base"/>
     <child link="${prefix}sealer_plate"/>
     <axis xyz="0 0 1"/>
