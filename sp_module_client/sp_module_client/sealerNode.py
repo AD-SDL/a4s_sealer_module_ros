@@ -101,7 +101,10 @@ class sealerNode(Node):
             #self.sealer.set_temp(175)
             self.sealer.seal()
             sleep(10)
-            response.action_response = True
+            response.action_response = 0
+            response.action_msg= "all good sealer"
+            self.get_logger().info('Finished Action: ' + request.action_handle)
+            return response
 
         self.state = "COMPLETED"
 
