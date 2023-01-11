@@ -96,7 +96,10 @@ class peelerNode(Node):
             self.peeler.check_version()
             self.peeler.get_status()
 
-            response.action_response = True
+            response.action_response = 0
+            response.action_msg= "all good peeler"
+            self.get_logger().info('Finished Action: ' + request.action_handle)
+            return response
 
         elif action_handle=="peel":
             vars = eval(request.vars)
@@ -105,17 +108,13 @@ class peelerNode(Node):
             self.peeler.seal_check()
             self.peeler.peel(1, 2.5)
 
-            response.action_response = True
-
-        else:
-            response.action_response = False
-
-        self.state = "COMPLETED"
+            response.action_response = 0
+            response.action_msg= "all good peeler"
+            self.get_logger().info('Finished Action: ' + request.action_handle)
+            return response
 
         if "Error:" in self.peeler.peeler_output:
             self.state = self.peeler.error_msg
-
-        return response
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""

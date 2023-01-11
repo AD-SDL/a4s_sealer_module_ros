@@ -22,7 +22,6 @@ def generate_launch_description():
 
     sealer=Node(
         package='sp_module_client',
-        namespace='sp_module',
         namespace = 'std_ns',
         executable='sealerNode',
         name='sealerNode',
