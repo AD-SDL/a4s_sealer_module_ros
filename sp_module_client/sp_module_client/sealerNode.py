@@ -37,7 +37,7 @@ class sealerNode(Node):
 
 
         self.description = {
-            'name': TEMP_NODE_NAME,
+            'name': node_name,
             'type':'',
             'actions':
             {
@@ -46,7 +46,7 @@ class sealerNode(Node):
             }
 
         timer_period = 1  # seconds
-        self.statePub = self.create_publisher(String, "sealer_state", 10)       # Publisher for sealer state
+        self.statePub = self.create_publisher(String, "/sealer_state", 10)       # Publisher for sealer state
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)   # Callback that publishes to sealer state
 
         self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback)

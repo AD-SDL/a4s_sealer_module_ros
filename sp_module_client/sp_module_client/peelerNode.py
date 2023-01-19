@@ -22,7 +22,8 @@ class peelerNode(Node):
         Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
         """
 
-        super().__init__(NODE_NAME)
+        super().__init__(TEMP_NODE_NAME)
+        node_name = self.get_name()
 
 
         self.declare_parameter('peeler_port', '/dev/ttyUSB0')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
@@ -35,7 +36,7 @@ class peelerNode(Node):
         self.state = self.peeler.get_status() 
 
         self.description = {
-            'name': NODE_NAME,
+            'name': node_name,
             'type':'',
             'actions':
             {
@@ -44,12 +45,12 @@ class peelerNode(Node):
             }
 
         timer_period = 1  # seconds
-        self.statePub = self.create_publisher(String, "peeler_state", 10)       # Publisher for peeler state
+        self.statePub = self.create_publisher(String, "/peeler_state", 10)       # Publisher for peeler state
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)   # Callback that publishes to peeler state
 
-        self.actionSrv = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback)
+        self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback)
 
-        self.descriptionSrv = self.create_service(WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback)
+        self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback)
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
@@ -133,12 +134,11 @@ class peelerNode(Node):
 
 def main(args=None):  # noqa: D103
 
-    PORT = "/dev/ttyUSB0"       # Port name for peeler
-    NODE_NAME = "peelerNode"   # Node name for peeler   
+    TEMP_NODE_NAME = "peelerNode"   # Node name for peeler   
 
     rclpy.init(args=args)       # initialize Ros2 communication
 
-    node = peelerNode(NODE_NAME=NODE_NAME)
+    node = peelerNode(TEMP_NODE_NAME=TEMP_NODE_NAME)
 
     rclpy.spin(node)            # keep Ros2 communication open for action node
 
