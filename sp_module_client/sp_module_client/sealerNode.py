@@ -18,10 +18,12 @@ class sealerNode(Node):
     Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
     """
 
-    def __init__(self, NODE_NAME = "sealerNode"):
+    def __init__(self, TEMP_NODE_NAME = "sealerNode"):
         """Setup sealer node"""
 
-        super().__init__(NODE_NAME)
+        super().__init__(TEMP_NODE_NAME)
+        node_name = self.get_name()
+
 
         self.declare_parameter('sealer_port', '/dev/ttyUSB1')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
         PORT = self.get_parameter('sealer_port')    # Renaming parameter to general form so it can be used for other nodes too
@@ -35,7 +37,7 @@ class sealerNode(Node):
 
 
         self.description = {
-            'name': NODE_NAME,
+            'name': TEMP_NODE_NAME,
             'type':'',
             'actions':
             {
@@ -47,9 +49,9 @@ class sealerNode(Node):
         self.statePub = self.create_publisher(String, "sealer_state", 10)       # Publisher for sealer state
         self.stateTimer = self.create_timer(timer_period, self.stateCallback)   # Callback that publishes to sealer state
 
-        self.actionSrv = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback)
+        self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback)
 
-        self.descriptionSrv = self.create_service(WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback)
+        self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback)
 
 
     def descriptionCallback(self, request, response):
@@ -127,12 +129,11 @@ class sealerNode(Node):
 
 def main(args=None):  # noqa: D103
 
-    PORT = "/dev/ttyUSB1"       # Port name for peeler
-    NODE_NAME = "sealerNode"   # Node name for peeler   
+    TEMP_NODE_NAME = "sealerNode"   # Node name for peeler   
 
     rclpy.init(args=args)  # initialize Ros2 communication
 
-    node = sealerNode(NODE_NAME=NODE_NAME)
+    node = sealerNode(TEMP_NODE_NAME=TEMP_NODE_NAME)
 
     rclpy.spin(node)  # keep Ros2 communication open for action node
 
