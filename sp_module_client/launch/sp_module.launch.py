@@ -32,16 +32,16 @@ def generate_launch_description():
     peeler=Node(
         package='sp_module_client',
         namespace = 'std_ns',
-        executable='peelerNode',
-        name='peelerNode',
+        executable='peeler_client',
+        name='PeelerNode',
         parameters = [{peeler_port:"peeler_port"}]
     )
 
     sealer=Node(
         package='sp_module_client',
         namespace = 'std_ns',
-        executable='sealerNode',
-        name='sealerNode',
+        executable='sealer_client',
+        name='SealerNode',
         parameters = [{sealer_port:"sealer_port"}]
     )
 
