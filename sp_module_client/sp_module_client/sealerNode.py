@@ -26,15 +26,11 @@ class sealerNode(Node):
 
 
         self.declare_parameter('sealer_port', '/dev/ttyUSB1')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
-        PORT = self.get_parameter('sealer_port')    # Renaming parameter to general form so it can be used for other nodes too
-        self.sealer = A4S_SEALER_CLIENT(PORT.value)
+        self.PORT = self.get_parameter('sealer_port').get_parameter_value()._string_value    # Renaming parameter to general form so it can be used for other nodes too
         
-
-
-        print("Sealer is online")               # Wakeup Message
+        self.get_logger().info("Received Port: " + str(self.PORT))
         self.state = "UNKOWN"
-
-
+        self.connect_robot()
 
         self.description = {
             'name': node_name,
@@ -53,6 +49,17 @@ class sealerNode(Node):
 
         self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback)
 
+    def connect_robot(self):
+        """Connect robot"""
+        try:
+            self.sealer = A4S_SEALER_CLIENT(self.PORT)
+        except Exception as err:
+            self.get_logger.error("SEALER CONNECTION ERROR")
+            self.state = "SEALER CONNECTION ERROR"
+            self.get_logger.warn("Trying to connect againg! PORT: ", str(self.PORT))
+            self.connect_robot()
+        else:
+            self.get_logger.info("Sealer is online")
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
@@ -115,6 +122,14 @@ class sealerNode(Node):
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
+        
+        try:
+            state = self.pf400.movement_state
+            self.pf400.get_overall_state()
+
+        except Exception as err:
+            self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
+            self.state = "SEALER CONNECTION ERROR"
 
         msg = String()
 
