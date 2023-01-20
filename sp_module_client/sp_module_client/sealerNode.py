@@ -5,13 +5,19 @@ import string
 from typing import List, Tuple
 
 import rclpy  # import Rospy
-from azenta_driver.sealer_driver import A4S_SEALER_CLIENT  # import sealer driver
 from rclpy.node import Node  # import Rospy Node
-from wei_services.srv import WeiActions, WeiDescription
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
 from std_msgs.msg import String
+
+from wei_services.srv import WeiActions, WeiDescription
+
 from time import sleep
 
-class sealerNode(Node):
+from azenta_driver.sealer_driver import A4S_SEALER_DRIVER  # import sealer driver
+
+
+class SealerClient(Node):
 
     """
     The init function is neccesary for the sealerNode class to initialize all variables, parameters, and other functions.
@@ -52,7 +58,7 @@ class sealerNode(Node):
     def connect_robot(self):
         """Connect robot"""
         try:
-            self.sealer = A4S_SEALER_CLIENT(self.PORT)
+            self.sealer = A4S_SEALER_DRIVER(self.PORT)
         except Exception as err:
             self.get_logger.error("SEALER CONNECTION ERROR")
             self.state = "SEALER CONNECTION ERROR"
@@ -132,19 +138,15 @@ class sealerNode(Node):
             self.state = "SEALER CONNECTION ERROR"
 
         msg = String()
-
         msg.data = "State %s" % self.state
-
         self.statePub.publish(msg)
-
         self.get_logger().info('Publishing: "%s"' % msg.data)
-
         self.state = "READY"
 
 
-def main(args=None):  # noqa: D103
+def main(args=None):  
 
-    TEMP_NODE_NAME = "sealerNode"   # Node name for peeler   
+    TEMP_NODE_NAME = "sealerNode"   
 
     rclpy.init(args=args)  # initialize Ros2 communication
 
@@ -154,6 +156,23 @@ def main(args=None):  # noqa: D103
 
     rclpy.shutdown()  # kill Ros2 communication
 
+    rclpy.init(args=args)  # initialize Ros2 communication
+
+    try:
+        pf400_client = PF400ClientNode()
+        executor = MultiThreadedExecutor()
+        executor.add_node(pf400_client)
+
+        try:
+            pf400_client.get_logger().info('Beginning client, shut down with CTRL-C')
+            executor.spin()
+        except KeyboardInterrupt:
+            pf400_client.get_logger().info('Keyboard interrupt, shutting down.\n')
+        finally:
+            executor.shutdown()
+            pf400_client.destroy_node()
+    finally:
+        rclpy.shutdown()
 
 if __name__ == "__main__":
 

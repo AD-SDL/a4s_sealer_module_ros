@@ -4,19 +4,23 @@
 from typing import List, Tuple
 
 import rclpy  # import Rospy
-from azenta_driver.peeler_driver import BROOKS_PEELER_CLIENT  # import peeler driver
 from rclpy.node import Node  # import Rospy Node
-from wei_services.srv import WeiActions, WeiDescription
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
 from std_msgs.msg import String
 
+from wei_services.srv import WeiActions, WeiDescription
 
-class peelerNode(Node):
+from azenta_driver.peeler_driver import BROOKS_PEELER_DRIVER  # import peeler driver
+
+
+class PeelerClient(Node):
     """
     The peelerNode inputs data from the 'action' topic, providing a set of commands for the driver to execute. It then receives feedback,
     based on the executed command and publishes the state of the peeler and a description of the peeler to the respective topics.
     """
 
-    def __init__(self, NODE_NAME="peelerNode"):
+    def __init__(self, TEMP_NODE_NAME =" peelerNode"):
         """
         The init function is neccesary for the peelerNode class to initialize all variables, parameters, and other functions.
         Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
@@ -29,7 +33,7 @@ class peelerNode(Node):
         self.declare_parameter('peeler_port', '/dev/ttyUSB0')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
         PORT = self.get_parameter('peeler_port')    # Renaming parameter to general form so it can be used for other nodes too
 
-        self.peeler = BROOKS_PEELER_CLIENT(PORT.value)
+        self.peeler = BROOKS_PEELER_DRIVER(PORT.value)
         print("Peeler is online")                   # Wakeup Message
 
         # self.state = 'ready'
@@ -141,16 +145,24 @@ class peelerNode(Node):
 
 def main(args=None):  # noqa: D103
 
-    TEMP_NODE_NAME = "peelerNode"   # Node name for peeler   
-
     rclpy.init(args=args)       # initialize Ros2 communication
 
-    node = peelerNode(TEMP_NODE_NAME=TEMP_NODE_NAME)
+        # kill Ros2 communication
+    try:
+        peeler_client_client = PeelerNode()
+        executor = MultiThreadedExecutor()
+        executor.add_node(pf400_client)
 
-    rclpy.spin(node)            # keep Ros2 communication open for action node
-
-    rclpy.shutdown()            # kill Ros2 communication
-
+        try:
+            pf400_client.get_logger().info('Beginning client, shut down with CTRL-C')
+            executor.spin()
+        except KeyboardInterrupt:
+            pf400_client.get_logger().info('Keyboard interrupt, shutting down.\n')
+        finally:
+            executor.shutdown()
+            pf400_client.destroy_node()
+    finally:
+        rclpy.shutdown()
 
 if __name__ == "__main__":
 
