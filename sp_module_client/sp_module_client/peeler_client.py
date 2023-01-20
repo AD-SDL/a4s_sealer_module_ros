@@ -147,20 +147,19 @@ def main(args=None):  # noqa: D103
 
     rclpy.init(args=args)       # initialize Ros2 communication
 
-        # kill Ros2 communication
     try:
-        peeler_client_client = PeelerNode()
+        peeler_client = PeelerClient()
         executor = MultiThreadedExecutor()
-        executor.add_node(pf400_client)
+        executor.add_node(peeler_client)
 
         try:
-            pf400_client.get_logger().info('Beginning client, shut down with CTRL-C')
+            peeler_client.get_logger().info('Beginning client, shut down with CTRL-C')
             executor.spin()
         except KeyboardInterrupt:
-            pf400_client.get_logger().info('Keyboard interrupt, shutting down.\n')
+            peeler_client.get_logger().info('Keyboard interrupt, shutting down.\n')
         finally:
             executor.shutdown()
-            pf400_client.destroy_node()
+            peeler_client.destroy_node()
     finally:
         rclpy.shutdown()
 

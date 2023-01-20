@@ -165,31 +165,21 @@ class SealerClient(Node):
 
 def main(args=None):  
 
-    TEMP_NODE_NAME = "sealerNode"   
-
-    rclpy.init(args=args)  # initialize Ros2 communication
-
-    node = sealerNode(TEMP_NODE_NAME=TEMP_NODE_NAME)
-
-    rclpy.spin(node)  # keep Ros2 communication open for action node
-
-    rclpy.shutdown()  # kill Ros2 communication
-
     rclpy.init(args=args)  # initialize Ros2 communication
 
     try:
-        pf400_client = PF400ClientNode()
+        sealer_client = SealerClient()
         executor = MultiThreadedExecutor()
-        executor.add_node(pf400_client)
+        executor.add_node(sealer_client)
 
         try:
-            pf400_client.get_logger().info('Beginning client, shut down with CTRL-C')
+            sealer_client.get_logger().info('Beginning client, shut down with CTRL-C')
             executor.spin()
         except KeyboardInterrupt:
-            pf400_client.get_logger().info('Keyboard interrupt, shutting down.\n')
+            sealer_client.get_logger().info('Keyboard interrupt, shutting down.\n')
         finally:
             executor.shutdown()
-            pf400_client.destroy_node()
+            sealer_client.destroy_node()
     finally:
         rclpy.shutdown()
 
