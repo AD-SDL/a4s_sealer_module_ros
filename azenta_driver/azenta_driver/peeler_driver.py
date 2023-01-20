@@ -8,7 +8,7 @@ import re
 # logging.basicConfig(filename = file_path, level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
 
 
-class BROOKS_PEELER_CLIENT():
+class BROOKS_PEELER_DRIVER():
     '''
     Description: 
     Python interface that allows remote commands to be executed to the Peeler. 
@@ -368,5 +368,5 @@ if __name__ == "__main__":
     Runs given function.
     '''
 
-    dummy_peel = BROOKS_PEELER_CLIENT("/dev/ttyUSB0")
+    dummy_peel = BROOKS_PEELER_DRIVER("/dev/ttyUSB0")
 

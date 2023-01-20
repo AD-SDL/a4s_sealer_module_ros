@@ -10,7 +10,7 @@ import re
 # logging.basicConfig(filename = file_path, level=logging.DEBUG, format = '[%(levelname)s] [%(asctime)s] [%(name)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S')
 
 
-class A4S_SEALER_CLIENT():
+class A4S_SEALER_DRIVER():
     """
     Description: 
                  - Python interface that allows remote commands to be executed using simple string messages over TCP/IP on PF400 cobot. 
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     Runs given function.
     '''
 
-    dummy_seal = A4S_SEALER_CLIENT("/dev/ttyUSB0")
+    dummy_seal = A4S_SEALER_DRIVER("/dev/ttyUSB0")
     # dummy_seal.reset()
     dummy_seal.reset()
     
