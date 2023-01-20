@@ -60,10 +60,8 @@ class SealerClient(Node):
         try:
             self.sealer = A4S_SEALER_DRIVER(self.PORT)
         except Exception as err:
-            self.get_logger.error("SEALER CONNECTION ERROR")
+            self.get_logger.error("SEALER CONNECTION ERROR! ERROR: " + str(err))
             self.state = "SEALER CONNECTION ERROR"
-            self.get_logger.warn("Trying to connect againg! PORT: ", str(self.PORT))
-            self.connect_robot()
         else:
             self.get_logger.info("Sealer is online")
 
@@ -104,8 +102,8 @@ class SealerClient(Node):
         """
         
         if request.action_handle=='seal':
-            self.state = "BUSY"
-            self.stateCallback()
+            # self.state = "BUSY"
+            # self.stateCallback()
             vars = eval(request.vars)
             print(vars)
 
@@ -128,20 +126,41 @@ class SealerClient(Node):
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
-        
+        msg = String()
+
         try:
-            state = self.pf400.movement_state
-            self.pf400.get_overall_state()
+            state = self.sealer.get_status()
+            # lid_status = #TODO :CHECK LID STATUS?
 
         except Exception as err:
             self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
             self.state = "SEALER CONNECTION ERROR"
 
-        msg = String()
-        msg.data = "State %s" % self.state
-        self.statePub.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
-        self.state = "READY"
+        if self.state != "SEALER CONNECTION ERROR":
+            #TODO: EDIT THE DRIVER TO RECEIVE ACTUAL ROBOT STATUS
+            if state == "Ready":
+                self.state = "READY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+
+            elif state == "RUNNING":
+                self.state = "BUSY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+
+            elif state == "ERROR":
+                self.state = "ERROR"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().error(msg.data)
+        else:
+            msg.data = 'State: %s' % self.state
+            self.statePub.publish(msg)
+            self.get_logger().error(msg.data)
+            self.get_logger.warn("Trying to connect again! PORT: ", str(self.PORT))
+            self.connect_robot()
 
 
 def main(args=None):  
