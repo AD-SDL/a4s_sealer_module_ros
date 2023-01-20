@@ -47,13 +47,17 @@ class SealerClient(Node):
             }
             }
 
+        action_cb_group = ReentrantCallbackGroup()
+        description_cb_group = ReentrantCallbackGroup()
+        state_cb_group = ReentrantCallbackGroup()
+
         timer_period = 1  # seconds
         self.statePub = self.create_publisher(String, "/sealer_state", 10)       # Publisher for sealer state
-        self.stateTimer = self.create_timer(timer_period, self.stateCallback)   # Callback that publishes to sealer state
+        self.stateTimer = self.create_timer(timer_period, self.stateCallback, callback_group=state_cb_group)   # Callback that publishes to sealer state
 
-        self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback)
+        self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback, callback_group=action_cb_group)
 
-        self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback)
+        self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group=description_cb_group)
 
     def connect_robot(self):
         """Connect robot"""
@@ -64,6 +68,44 @@ class SealerClient(Node):
             self.state = "SEALER CONNECTION ERROR"
         else:
             self.get_logger.info("Sealer is online")
+
+    def stateCallback(self):
+        """The state of the robot, can be ready, completed, busy, error"""
+        msg = String()
+
+        try:
+            state = self.sealer.get_status()
+            # lid_status = #TODO :CHECK LID STATUS?
+
+        except Exception as err:
+            self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
+            self.state = "SEALER CONNECTION ERROR"
+
+        if self.state != "SEALER CONNECTION ERROR":
+            #TODO: EDIT THE DRIVER TO RECEIVE ACTUAL ROBOT STATUS
+            if state == "Ready":
+                self.state = "READY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+
+            elif state == "RUNNING":
+                self.state = "BUSY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+
+            elif state == "ERROR":
+                self.state = "ERROR"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().error(msg.data)
+        else:
+            msg.data = 'State: %s' % self.state
+            self.statePub.publish(msg)
+            self.get_logger().error(msg.data)
+            self.get_logger.warn("Trying to connect again! PORT: ", str(self.PORT))
+            self.connect_robot()
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
@@ -123,44 +165,6 @@ class SealerClient(Node):
 
         return response
 
-
-    def stateCallback(self):
-        """The state of the robot, can be ready, completed, busy, error"""
-        msg = String()
-
-        try:
-            state = self.sealer.get_status()
-            # lid_status = #TODO :CHECK LID STATUS?
-
-        except Exception as err:
-            self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
-            self.state = "SEALER CONNECTION ERROR"
-
-        if self.state != "SEALER CONNECTION ERROR":
-            #TODO: EDIT THE DRIVER TO RECEIVE ACTUAL ROBOT STATUS
-            if state == "Ready":
-                self.state = "READY"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-
-            elif state == "RUNNING":
-                self.state = "BUSY"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-
-            elif state == "ERROR":
-                self.state = "ERROR"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().error(msg.data)
-        else:
-            msg.data = 'State: %s' % self.state
-            self.statePub.publish(msg)
-            self.get_logger().error(msg.data)
-            self.get_logger.warn("Trying to connect again! PORT: ", str(self.PORT))
-            self.connect_robot()
 
 
 def main(args=None):  
