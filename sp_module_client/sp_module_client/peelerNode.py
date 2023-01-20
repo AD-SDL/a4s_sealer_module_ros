@@ -119,6 +119,13 @@ class peelerNode(Node):
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
+        try:
+            state = self.pf400.movement_state
+            self.pf400.get_overall_state()
+
+        except Exception as err:
+            self.get_logger().error("PEELER IS NOT RESPONDING! ERROR: " + str(err))
+            self.state = "PEELER CONNECTION ERROR"
 
         msg = String()
 
