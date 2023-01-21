@@ -34,7 +34,6 @@ class PeelerClient(Node):
         self.PORT = self.get_parameter('peeler_port')    # Renaming parameter to general form so it can be used for other nodes too
 
         self.state = 'UNKNOWN'
-        self.state = self.peeler.get_status() 
 
         self.description = {
             'name': node_name,
@@ -65,27 +64,47 @@ class PeelerClient(Node):
         except Exception as err:
             self.state = "PEELER CONNECTION ERROR"
             self.get_logger.error("PEELER CONNECTION ERROR! ERROR: " + str(err))
-            
+
         else: 
             self.get_logger.info("Peeler is online")
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
+        msg = String()
+
         try:
-            state = self.pf400.movement_state
-            self.pf400.get_overall_state()
+            state = self.peeler.get_status() 
 
         except Exception as err:
             self.get_logger().error("PEELER IS NOT RESPONDING! ERROR: " + str(err))
             self.state = "PEELER CONNECTION ERROR"
 
-        msg = String()
 
-        msg.data = "State: %s" % self.state
+        if self.state != "PEELER CONNECTION ERROR":
+            #TODO: EDIT THE DRIVER TO RECEIVE ACTUAL ROBOT STATUS
+            if state == "Ready":
+                self.state = "READY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
 
-        self.statePub.publish(msg)
+            elif state == "RUNNING":
+                self.state = "BUSY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
 
-        self.get_logger().info('Publishing: "%s"' % msg.data)
+            elif state == "ERROR":
+                self.state = "ERROR"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().error(msg.data)
+        else:
+            msg.data = 'State: %s' % self.state
+            self.statePub.publish(msg)
+            self.get_logger().error(msg.data)
+            self.get_logger.warn("Trying to connect again! PORT: ", str(self.PORT))
+            self.connect_robot()
 
 
         # self.state = self.peeler.get_status()
