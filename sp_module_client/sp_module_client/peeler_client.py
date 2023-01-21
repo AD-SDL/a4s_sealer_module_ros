@@ -20,7 +20,7 @@ class PeelerClient(Node):
     based on the executed command and publishes the state of the peeler and a description of the peeler to the respective topics.
     """
 
-    def __init__(self, TEMP_NODE_NAME =" peelerNode"):
+    def __init__(self, TEMP_NODE_NAME = "PeelerNode"):
         """
         The init function is neccesary for the peelerNode class to initialize all variables, parameters, and other functions.
         Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
@@ -31,9 +31,11 @@ class PeelerClient(Node):
 
 
         self.declare_parameter('peeler_port', '/dev/ttyUSB0')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
-        self.PORT = self.get_parameter('peeler_port')    # Renaming parameter to general form so it can be used for other nodes too
+        self.PORT = self.get_parameter('peeler_port').get_parameter_value().string_value     # Renaming parameter to general form so it can be used for other nodes too
+        self.get_logger().info("Received Port: " + str(self.PORT))
 
         self.state = 'UNKNOWN'
+        self.connect_robot()
 
         self.description = {
             'name': node_name,
@@ -60,13 +62,14 @@ class PeelerClient(Node):
 
         try:
             self.peeler = BROOKS_PEELER_DRIVER(self.PORT)
+            self.peeler.connect_peeler()
 
         except Exception as err:
             self.state = "PEELER CONNECTION ERROR"
-            self.get_logger.error("PEELER CONNECTION ERROR! ERROR: " + str(err))
-
+            self.get_logger().error("PEELER CONNECTION ERROR! ERROR: " + str(err))
         else: 
-            self.get_logger.info("Peeler is online")
+            self.get_logger().info("Peeler is online AAA")
+            
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
@@ -103,7 +106,7 @@ class PeelerClient(Node):
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
             self.get_logger().error(msg.data)
-            self.get_logger.warn("Trying to connect again! PORT: ", str(self.PORT))
+            self.get_logger().warn("Trying to connect again! PORT: " + str(self.PORT))
             self.connect_robot()
 
 

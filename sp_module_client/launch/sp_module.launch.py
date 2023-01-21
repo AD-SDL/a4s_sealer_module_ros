@@ -34,7 +34,9 @@ def generate_launch_description():
         namespace = 'std_ns',
         executable='peeler_client',
         name='PeelerNode',
-        parameters = [{peeler_port:"peeler_port"}]
+        parameters = [{peeler_port:"peeler_port"}],
+        emulate_tty=True
+
     )
 
     sealer=Node(
@@ -42,7 +44,9 @@ def generate_launch_description():
         namespace = 'std_ns',
         executable='sealer_client',
         name='SealerNode',
-        parameters = [{sealer_port:"sealer_port"}]
+        parameters = [{sealer_port:"sealer_port"}],            
+        emulate_tty=True
+
     )
 
     ld.add_action(declare_use_sealer_port_cmd)

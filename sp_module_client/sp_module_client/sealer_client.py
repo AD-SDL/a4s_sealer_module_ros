@@ -32,7 +32,7 @@ class SealerClient(Node):
 
 
         self.declare_parameter('sealer_port', '/dev/ttyUSB1')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
-        self.PORT = self.get_parameter('sealer_port').get_parameter_value()._string_value    # Renaming parameter to general form so it can be used for other nodes too
+        self.PORT = self.get_parameter('sealer_port').get_parameter_value().string_value    # Renaming parameter to general form so it can be used for other nodes too
         
         self.get_logger().info("Received Port: " + str(self.PORT))
         self.state = "UNKOWN"
@@ -63,7 +63,7 @@ class SealerClient(Node):
         try:
             self.sealer = A4S_SEALER_DRIVER(self.PORT)
         except Exception as err:
-            self.get_logger.error("SEALER CONNECTION ERROR! ERROR: " + str(err))
+            self.get_logger().error("SEALER CONNECTION ERROR! ERROR: " + str(err))
             self.state = "SEALER CONNECTION ERROR"
         else:
             self.get_logger.info("Sealer is online")
@@ -103,7 +103,7 @@ class SealerClient(Node):
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
             self.get_logger().error(msg.data)
-            self.get_logger.warn("Trying to connect again! PORT: ", str(self.PORT))
+            self.get_logger().warn("Trying to connect again! PORT: " + str(self.PORT))
             self.connect_robot()
 
     def descriptionCallback(self, request, response):
