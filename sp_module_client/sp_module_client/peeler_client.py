@@ -33,10 +33,7 @@ class PeelerClient(Node):
         self.declare_parameter('peeler_port', '/dev/ttyUSB0')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
         self.PORT = self.get_parameter('peeler_port')    # Renaming parameter to general form so it can be used for other nodes too
 
-        self.peeler = BROOKS_PEELER_DRIVER(self.PORT)
-        print("Peeler is online")                   # Wakeup Message
-
-        # self.state = 'ready'
+        self.state = 'UNKNOWN'
         self.state = self.peeler.get_status() 
 
         self.description = {
@@ -59,6 +56,19 @@ class PeelerClient(Node):
         self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback,callback_group=action_cb_group)
         self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group=description_cb_group)
     
+    def connect_robot(self):
+        """Connect robot"""
+
+        try:
+            self.peeler = BROOKS_PEELER_DRIVER(self.PORT)
+
+        except Exception as err:
+            self.state = "PEELER CONNECTION ERROR"
+            self.get_logger.error("PEELER CONNECTION ERROR! ERROR: " + str(err))
+            
+        else: 
+            self.get_logger.info("Peeler is online")
+
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
         try:
