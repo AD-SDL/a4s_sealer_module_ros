@@ -57,7 +57,6 @@ class PeelerClient(Node):
         self.stateTimer = self.create_timer(timer_period, self.stateCallback, callback_group=state_cb_group)   # Callback that publishes to peeler state
 
         self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback,callback_group=action_cb_group)
-
         self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group=description_cb_group)
     
     def stateCallback(self):
