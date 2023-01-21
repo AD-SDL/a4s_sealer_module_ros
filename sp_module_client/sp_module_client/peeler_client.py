@@ -31,9 +31,9 @@ class PeelerClient(Node):
 
 
         self.declare_parameter('peeler_port', '/dev/ttyUSB0')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
-        PORT = self.get_parameter('peeler_port')    # Renaming parameter to general form so it can be used for other nodes too
+        self.PORT = self.get_parameter('peeler_port')    # Renaming parameter to general form so it can be used for other nodes too
 
-        self.peeler = BROOKS_PEELER_DRIVER(PORT.value)
+        self.peeler = BROOKS_PEELER_DRIVER(self.PORT)
         print("Peeler is online")                   # Wakeup Message
 
         # self.state = 'ready'
@@ -48,13 +48,38 @@ class PeelerClient(Node):
             }
             }
 
+        action_cb_group = ReentrantCallbackGroup()
+        description_cb_group = ReentrantCallbackGroup()
+        state_cb_group = ReentrantCallbackGroup()
+
         timer_period = 1  # seconds
-        self.statePub = self.create_publisher(String, "/peeler_state", 10)       # Publisher for peeler state
-        self.stateTimer = self.create_timer(timer_period, self.stateCallback)   # Callback that publishes to peeler state
+        self.statePub = self.create_publisher(String, node_name + "/state", 10)       # Publisher for peeler state
+        self.stateTimer = self.create_timer(timer_period, self.stateCallback, callback_group=state_cb_group)   # Callback that publishes to peeler state
 
-        self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback)
+        self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback,callback_group=action_cb_group)
 
-        self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback)
+        self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group=description_cb_group)
+    
+    def stateCallback(self):
+        """The state of the robot, can be ready, completed, busy, error"""
+        try:
+            state = self.pf400.movement_state
+            self.pf400.get_overall_state()
+
+        except Exception as err:
+            self.get_logger().error("PEELER IS NOT RESPONDING! ERROR: " + str(err))
+            self.state = "PEELER CONNECTION ERROR"
+
+        msg = String()
+
+        msg.data = "State: %s" % self.state
+
+        self.statePub.publish(msg)
+
+        self.get_logger().info('Publishing: "%s"' % msg.data)
+
+
+        # self.state = self.peeler.get_status()
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
@@ -121,26 +146,6 @@ class PeelerClient(Node):
         if "Error:" in self.peeler.peeler_output:
             self.state = self.peeler.error_msg
 
-    def stateCallback(self):
-        """The state of the robot, can be ready, completed, busy, error"""
-        try:
-            state = self.pf400.movement_state
-            self.pf400.get_overall_state()
-
-        except Exception as err:
-            self.get_logger().error("PEELER IS NOT RESPONDING! ERROR: " + str(err))
-            self.state = "PEELER CONNECTION ERROR"
-
-        msg = String()
-
-        msg.data = "State: %s" % self.state
-
-        self.statePub.publish(msg)
-
-        self.get_logger().info('Publishing: "%s"' % msg.data)
-
-
-        # self.state = self.peeler.get_status()
 
 
 def main(args=None):  # noqa: D103

@@ -52,7 +52,7 @@ class SealerClient(Node):
         state_cb_group = ReentrantCallbackGroup()
 
         timer_period = 1  # seconds
-        self.statePub = self.create_publisher(String, "/sealer_state", 10)       # Publisher for sealer state
+        self.statePub = self.create_publisher(String, node_name + "/state", 10)       # Publisher for sealer state
         self.stateTimer = self.create_timer(timer_period, self.stateCallback, callback_group=state_cb_group)   # Callback that publishes to sealer state
 
         self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback, callback_group=action_cb_group)
