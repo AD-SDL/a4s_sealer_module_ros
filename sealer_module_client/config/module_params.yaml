@@ -1,0 +1,7 @@
+peelerNode:
+  ros__parameters:
+    peeler_port: "/dev/ttyUSB0"
+
+sealerNode:
+  ros__parameters:
+    sealer_port: "/dev/ttyUSB1"
