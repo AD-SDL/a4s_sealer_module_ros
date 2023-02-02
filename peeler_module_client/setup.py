@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 from glob import glob
 
-package_name = 'sp_module_client'
+package_name = 'peeler_module_client'
 
 setup(
     name=package_name,
@@ -24,9 +24,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'peeler_client = sp_module_client.peeler_client:main',
-            'sealer_client= sp_module_client.sealer_client:main',
-            'cameraNode = sp_module_client.cameraNode:main',
+            'peeler_client = peeler_module_client.peeler_client:main',
         ],
     },
 )

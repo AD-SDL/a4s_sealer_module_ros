@@ -14,14 +14,8 @@ def generate_launch_description():
     # 'config',
     # 'module_params.yaml'
     # )
-    sealer_port = LaunchConfiguration("sealer_port")
     peeler_port = LaunchConfiguration("peeler_port")
 
-    declare_use_sealer_port_cmd = DeclareLaunchArgument(
-        name='sealer_port',
-        default_value="/dev/ttyUSB1",
-        description='Flag to accept sealer port number'
-        )
     
     declare_use_peeler_port_cmd = DeclareLaunchArgument(
         name = "peeler_port",
@@ -30,7 +24,7 @@ def generate_launch_description():
         )
 
     peeler=Node(
-        package='sp_module_client',
+        package='peeler_module_client',
         namespace = 'std_ns',
         executable='peeler_client',
         name='PeelerNode',
@@ -39,19 +33,8 @@ def generate_launch_description():
 
     )
 
-    sealer=Node(
-        package='sp_module_client',
-        namespace = 'std_ns',
-        executable='sealer_client',
-        name='SealerNode',
-        parameters = [{"sealer_port":sealer_port}],            
-        emulate_tty=True
 
-    )
-
-    ld.add_action(declare_use_sealer_port_cmd)
     ld.add_action(declare_use_peeler_port_cmd)
     ld.add_action(peeler)
-    ld.add_action(sealer)
 
     return ld
