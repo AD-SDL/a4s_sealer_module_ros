@@ -78,7 +78,7 @@ def generate_launch_description():
     arguments=['-d', rviz_config_file])
 
   # Start RealHarware Joint State Publisher Client
-  start_azenta_description_client = Node(
+  start_peeler_description_client = Node(
     condition=UnlessCondition(fake_hardware),
     package = "azenta_description",
     executable = 'peeler_description_client',
@@ -101,6 +101,6 @@ def generate_launch_description():
   ld.add_action(start_joint_state_publisher_fake_hardware_node)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
-  ld.add_action(start_azenta_description_client)
+  ld.add_action(start_peeler_description_client)
  
   return ld
