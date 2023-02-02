@@ -58,7 +58,7 @@ class PeelerClient(Node):
         self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group=description_cb_group)
     
     def connect_robot(self):
-        """Connect robot"""
+        """Connect to robot"""
 
         try:
             self.peeler = BROOKS_PEELER_DRIVER(self.PORT)
@@ -68,7 +68,7 @@ class PeelerClient(Node):
             self.state = "PEELER CONNECTION ERROR"
             self.get_logger().error("PEELER CONNECTION ERROR! ERROR: " + str(err))
         else: 
-            self.get_logger().info("Peeler is online AAA")
+            self.get_logger().info("Peeler is online ")
             
 
     def stateCallback(self):
