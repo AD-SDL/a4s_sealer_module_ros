@@ -59,7 +59,6 @@ class SealerDescriptionClient(Node):
 
         # joint_states_sealer = self.peeler.refresh_joint_state()
 
-        joint_states_peeler = [0.0]
         joint_states_sealer = [0.0]
 
 
