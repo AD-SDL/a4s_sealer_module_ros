@@ -27,7 +27,7 @@ class PeelerClient(Node):
         """
 
         super().__init__(TEMP_NODE_NAME)
-        node_name = self.get_name()
+        self.node_name = self.get_name()
 
 
         self.declare_parameter('peeler_port', '/dev/ttyUSB0')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
@@ -35,10 +35,12 @@ class PeelerClient(Node):
         self.get_logger().info("Received Port: " + str(self.PORT))
 
         self.state = 'UNKNOWN'
+        self.robot_status = ""
+        self.action_flag = "READY"
         self.connect_robot()
 
         self.description = {
-            'name': node_name,
+            'name': self.node_name,
             'type':'',
             'actions':
             {
@@ -51,11 +53,11 @@ class PeelerClient(Node):
         state_cb_group = ReentrantCallbackGroup()
 
         timer_period = 1  # seconds
-        self.statePub = self.create_publisher(String, node_name + "/state", 10)       # Publisher for peeler state
+        self.statePub = self.create_publisher(String, self.node_name + "/state", 10)       # Publisher for peeler state
         self.stateTimer = self.create_timer(timer_period, self.stateCallback, callback_group=state_cb_group)   # Callback that publishes to peeler state
 
-        self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback,callback_group=action_cb_group)
-        self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group=description_cb_group)
+        self.actionSrv = self.create_service(WeiActions, self.node_name + "/action_handler", self.actionCallback,callback_group=action_cb_group)
+        self.descriptionSrv = self.create_service(WeiDescription, self.node_name + "/description_handler", self.descriptionCallback, callback_group=description_cb_group)
     
     def connect_robot(self):
         """Connect to robot"""
@@ -76,7 +78,7 @@ class PeelerClient(Node):
         msg = String()
 
         try:
-            state = self.peeler.get_status() 
+            self.robot_status = self.peeler.get_status().upper()
 
         except Exception as err:
             self.get_logger().error("PEELER IS NOT RESPONDING! ERROR: " + str(err))
@@ -85,29 +87,40 @@ class PeelerClient(Node):
 
         if self.state != "PEELER CONNECTION ERROR":
             #TODO: EDIT THE DRIVER TO RECEIVE ACTUAL ROBOT STATUS
-            if state == "Ready":
-                self.state = "READY"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-
-            elif state == "RUNNING":
-                self.state = "BUSY"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-
-            elif state == "ERROR" or "Error:" in self.peeler.peeler_output:
+            
+            if self.state == "ERROR" or self.robot_status == "ERROR" or "Error:" in self.peeler.peeler_output:
                 self.state = "ERROR"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
                 self.get_logger().error(self.peeler.peeler_output)
+                self.action_flag = "READY"
+
+            elif self.state == "COMPLETED":
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                self.action_flag = "READY"   
+
+            elif self.robot_status == "RUNNING":
+                self.state = "BUSY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+
+            elif self.robot_status == "READY":
+                self.state = "READY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+
+
         else:
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
             self.get_logger().error(msg.data)
             self.get_logger().warn("Trying to connect again! PORT: " + str(self.PORT))
+            self.action_flag = "READY"
             self.connect_robot()
 
 
@@ -150,30 +163,53 @@ class PeelerClient(Node):
         """
 
         action_handle = request.action_handle  # Run commands if manager sends corresponding command
-        self.state = "BUSY"
-        self.stateCallback()
+        vars = eval(request.vars)
+        print(vars)
+        
+        self.action_flag = "BUSY"
 
         if action_handle=="status":
-            self.peeler.reset()
-            self.peeler.check_version()
-            self.peeler.get_status()
 
-            response.action_response = 0
-            response.action_msg= "all good peeler"
-            self.get_logger().info('Finished Action: ' + request.action_handle)
-            return response
+            try:
+                self.peeler.reset()
+                self.peeler.check_version()
+                self.peeler.get_status()  
+
+            except Exception as err:
+                response.action_response = -1
+                response.action_msg = self.node_name + " Peeler getting status failed. Error: " + err
+                self.state = "ERROR"
+
+            else:    
+                response.action_response = 0
+                response.action_msg= self.node_name + " Peel getting status successfully completed"
+                self.state = "COMPLETED"
+
+            finally:
+                self.get_logger().info('Finished Action: ' + request.action_handle)
+                return response
+
 
         elif action_handle=="peel":
-            vars = eval(request.vars)
-            print(vars)
 
-            self.peeler.seal_check()
-            self.peeler.peel(1, 2.5)
 
-            response.action_response = 0
-            response.action_msg= "all good peeler"
-            self.get_logger().info('Finished Action: ' + request.action_handle)
-            return response
+            try:
+                self.peeler.seal_check()
+                self.peeler.peel(1, 2.5)            
+            except Exception as err:
+                response.action_response = -1
+                response.action_msg = self.node_name + " Peel plate failed. Error: " + err
+                self.state = "ERROR"
+
+            else:    
+                response.action_response = 0
+                response.action_msg= self.node_name + " Peel plate successfully completed"
+                self.state = "COMPLETED"
+
+            finally:
+                self.get_logger().info('Finished Action: ' + request.action_handle)
+                return response
+
 
         else: 
             msg = "UNKOWN ACTION REQUEST! Available actions: seal"
@@ -183,9 +219,6 @@ class PeelerClient(Node):
             self.state = "ERROR"
             return response
         
-
-
-
 
 def main(args=None):  # noqa: D103
 
