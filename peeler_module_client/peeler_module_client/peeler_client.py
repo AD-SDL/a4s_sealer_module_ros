@@ -97,11 +97,12 @@ class PeelerClient(Node):
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-            elif state == "ERROR":
+            elif state == "ERROR" or "Error:" in self.peeler.peeler_output:
                 self.state = "ERROR"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
+                self.get_logger().error(self.peeler.peeler_output)
         else:
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
@@ -174,8 +175,15 @@ class PeelerClient(Node):
             self.get_logger().info('Finished Action: ' + request.action_handle)
             return response
 
-        if "Error:" in self.peeler.peeler_output:
-            self.state = self.peeler.error_msg
+        else: 
+            msg = "UNKOWN ACTION REQUEST! Available actions: seal"
+            response.action_response = -1
+            response.action_msg= msg
+            self.get_logger().error('Error: ' + msg)
+            self.state = "ERROR"
+            return response
+        
+
 
 
 
