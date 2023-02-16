@@ -158,12 +158,18 @@ class SealerClient(Node):
             response.action_response = 0
             response.action_msg= "all good sealer"
             self.get_logger().info('Finished Action: ' + request.action_handle)
+            self.state = "COMPLETED"
+
             return response
 
-        self.state = "COMPLETED"
 
-        return response
-
+        else: 
+            msg = "UNKOWN ACTION REQUEST! Available actions: seal"
+            response.action_response = -1
+            response.action_msg= msg
+            self.get_logger().error('Error: ' + msg)
+            self.state = "ERROR"
+            return response
 
 
 def main(args=None):  
