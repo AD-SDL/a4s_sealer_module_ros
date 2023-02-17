@@ -369,4 +369,7 @@ if __name__ == "__main__":
     '''
 
     dummy_peel = BROOKS_PEELER_DRIVER("/dev/ttyUSB0")
+    print(dummy_peel.get_status())
+    print(dummy_peel.peel(1,2.5))
+    print(dummy_peel.get_status())
 

@@ -66,7 +66,7 @@ class SealerClient(Node):
             self.get_logger().error("SEALER CONNECTION ERROR! ERROR: " + str(err))
             self.state = "SEALER CONNECTION ERROR"
         else:
-            self.get_logger.info("Sealer is online")
+            self.get_logger().info("Sealer is online")
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""

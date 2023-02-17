@@ -194,7 +194,7 @@ class PeelerClient(Node):
 
 
             try:
-                self.peeler.seal_check()
+                self.peeler.peel_check()
                 self.peeler.peel(1, 2.5)            
             except Exception as err:
                 response.action_response = -1
