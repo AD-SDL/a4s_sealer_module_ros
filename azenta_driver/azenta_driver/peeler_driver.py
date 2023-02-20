@@ -27,7 +27,7 @@ class BROOKS_PEELER_DRIVER():
         self.tape_remaining_var = 0
         self.sensor_threshold_var = 0
         self.error_msg = ""
-        
+        self.movement_state = "READY"
 
 
     def connect_peeler(self):
@@ -172,29 +172,32 @@ class BROOKS_PEELER_DRIVER():
         '''
         Returns elevator and conveyor to home location and gets fresh tape in place to use.
         '''
-        
+        self.movement_state = "BUSY"
         cmd_string = '*reset\r\n'
         success_msg = "Successful reset"
         err_msg = "Failed to reset"
         self.send_command(cmd_string, success_msg, err_msg)
+        self.movement_state = "READY"
 
 
     def restart(self):
         '''
         Turns Peeler power off and on.
         '''
-        
+        self.movement_state = "BUSY"
         cmd_string = '*restart\r\n'
         success_msg = "Successful restart"
         err_msg = "Failed to restart"
         self.send_command(cmd_string, success_msg, err_msg)        
+        self.movement_state = "READY"
 
 
     def peel(self, param_set_num, param_time):
         '''
         Removes seal based on the paramaters given for the location to start peeling, the speed, and adhere time.
         '''
-        
+        self.movement_state = "BUSY"
+
         peel_dict = {
             1: ["default -2 mm", "fast"],
             2: ["default -2 mm", "slow"],
@@ -210,28 +213,31 @@ class BROOKS_PEELER_DRIVER():
         success_msg = "Successfully adjusted peel location to %s and speed to %s" %(peel_dict[param_set_num][0], peel_dict[param_set_num][1])
         err_msg = "Failed to adjust peel location to %s and speed to %s"%(peel_dict[param_set_num][0], peel_dict[param_set_num][1])
         self.send_command(cmd_string, success_msg, err_msg)      
+        self.movement_state = "READY"
 
 
     def seal_check(self):
         '''
         Checks if there is any seal on the plate.
         '''
-
+        self.movement_state = "BUSY"
         cmd_string = '*sealcheck\r\n'
         success_msg = "Successful seal check"
         err_msg = "Failed to conduct seal check"
         self.send_command(cmd_string, success_msg, err_msg)        
-    
+        self.movement_state = "READY"
+
 
     def tape_remaining(self):
         '''
         Checks how much tape is left on the supply spool and take-up spool in deseals.
         '''
-        
+        self.movement_state = "BUSY"
         cmd_string = '*tapeleft\r\n'
         success_msg = " deseals remaining on supply spool \n deseals remaining on take-up spool"
         err_msg = "Failed to find amount of tape remaining"
         response = self.send_command(cmd_string, success_msg, err_msg)   
+        self.movement_state = "READY"
 
         matches = re.search(r"\*tape:(\d+),(\d+)",response)
 
@@ -246,6 +252,7 @@ class BROOKS_PEELER_DRIVER():
         '''
         If plate check set to yes, the XPeel process is prevented from taking place if there is no plate detected on the plate tray.
         '''
+        self.movement_state = "BUSY"
         #pc_yn = y for yes n for no
         pc_yn = input("Set platecheck to yes (y) or no (n): ")
         cmd_string = '*platecheck:%s\r\n'%(pc_yn)
@@ -256,6 +263,7 @@ class BROOKS_PEELER_DRIVER():
         success_msg = "Platecheck set to %s"%(pc_yn_string)
         err_msg = "Failed to set plate check to %s"%(pc_yn_string)
         self.send_command(cmd_string, success_msg, err_msg)   
+        self.movement_state = "READY"
 
 
     def sensor_threshold(self, threshold_value = "Not Found"):
@@ -316,50 +324,56 @@ class BROOKS_PEELER_DRIVER():
         '''
         Moves the conveyor out.
         '''
-        
+        self.movement_state = "BUSY"
         cmd_string = '*moveout\r\n'
         success_msg = "Successfully moved conveyor out"
         err_msg = "Failed to move conveyor out"
         self.send_command(cmd_string, success_msg, err_msg) 
+        self.movement_state = "READY"
 
     def conveyor_in(self):
         '''
         Moves conveyor in.
         '''
-
+        self.movement_state = "BUSY"
         cmd_string = '*movein\r\n'
         success_msg = "Successfully moved conveyor in"
         err_msg = "Failed to move conveyor in"
         self.send_command(cmd_string, success_msg, err_msg) 
+        self.movement_state = "READY"
+
 
     def elevator_down(self):
         '''
         Moves elevator down.
         '''
-       
+        self.movement_state = "BUSY"      
         cmd_string = '*movedown\r\n'
         success_msg = "Successfully moved elevator down"
         err_msg = "Failed to move elevator down"
         self.send_command(cmd_string, success_msg, err_msg) 
+        self.movement_state = "READY"
 
     def elevator_up(self):
         '''
         Moves elevator up.
         '''
-
+        self.movement_state = "BUSY"
         cmd_string = '*moveup\r\n'
         success_msg = "Successfully moved elevator up"
         err_msg = "Failed to move elevator up"
         self.send_command(cmd_string, success_msg, err_msg) 
+        self.movement_state = "READY"
 
     def move_spool(self):
         "Advances the spool 10 mm of tape"
-
+        self.movement_state = "BUSY"
         cmd_string = '*movespool\r\n'
         success_msg = "Successfully moved spool 10 mm"
         err_msg = "Failed to move spool 10 mm"
         self.send_command(cmd_string, success_msg, err_msg) 
-     
+        self.movement_state = "READY"
+
 
 
 
@@ -368,8 +382,11 @@ if __name__ == "__main__":
     Runs given function.
     '''
 
-    dummy_peel = BROOKS_PEELER_DRIVER("/dev/ttyUSB0")
-    print(dummy_peel.get_status())
-    print(dummy_peel.peel(1,2.5))
-    print(dummy_peel.get_status())
+    peeler = BROOKS_PEELER_DRIVER("/dev/ttyUSB0")
+    print(peeler.get_status())
+    print(peeler.peeler_output)
+    print(peeler.error_msg)
+    # peeler.reset()
+    # print(peeler.peel(1,2.5))
+    # print(peeler.get_status())
 
