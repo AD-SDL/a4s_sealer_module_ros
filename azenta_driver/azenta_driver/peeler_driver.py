@@ -147,7 +147,7 @@ class BROOKS_PEELER_DRIVER():
         status_response =  self.send_command(cmd_string, success_msg, err_msg)
         msg_beggining = "*"
         msg_end = ":"
-        self.status_msg = status_response[status_response.find(msg_beggining)+len(msg_beggining):status_response.rfind(msg_end)]
+        self.status_msg = status_response[status_response.find(msg_beggining)+len(msg_beggining):status_response.rfind(msg_end)].upper()
         return status_response
     
     def check_version(self):
@@ -386,10 +386,10 @@ if __name__ == "__main__":
 
     peeler = BROOKS_PEELER_DRIVER("/dev/ttyUSB0")
     peeler.get_status()
-    # print(peeler.status_msg)
+    print(peeler.status_msg)
     # print(peeler.peeler_output)
     print(peeler.error_msg)
-    # peeler.reset()
+    peeler.reset()
     # print(peeler.peel(1,2.5))
     # print(peeler.get_status())
 

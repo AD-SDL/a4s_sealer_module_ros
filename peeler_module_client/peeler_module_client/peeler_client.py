@@ -2,7 +2,7 @@
 """Peeler node"""
 
 from typing import List, Tuple
-
+from time import sleep
 import rclpy  # import Rospy
 from rclpy.node import Node  # import Rospy Node
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
@@ -78,7 +78,7 @@ class PeelerClient(Node):
         msg = String()
 
         try:
-            self.robot_status = self.peeler.get_status().upper()
+            self.peeler.get_status()
 
         except Exception as err:
             self.get_logger().error("PEELER IS NOT RESPONDING! ERROR: " + str(err))
@@ -88,12 +88,17 @@ class PeelerClient(Node):
         if self.state != "PEELER CONNECTION ERROR":
             #TODO: EDIT THE DRIVER TO RECEIVE ACTUAL ROBOT STATUS
             
-            if self.state == "ERROR" or self.robot_status == "ERROR" or "Error:" in self.peeler.peeler_output:
+            if self.state == "ERROR" or "NO ERRORS" not in self.peeler.error_msg.upper():
+                #TODO:Reseting errors out
                 self.state = "ERROR"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
-                self.get_logger().error(self.peeler.peeler_output)
+                self.get_logger().error(self.peeler.error_msg.upper())
+                self.get_logger().warn('Trying to reset the Peeler')
+                res = self.peeler.reset()
+                rate = self.create_rate(15)
+                rate.sleep()
                 self.action_flag = "READY"
 
             elif self.state == "COMPLETED":
@@ -102,13 +107,13 @@ class PeelerClient(Node):
                 self.get_logger().info(msg.data)
                 self.action_flag = "READY"   
 
-            elif self.robot_status == "RUNNING":
+            elif self.peeler.movement_state == "BUSY" or self.action_flag == "BUSY":
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-            elif self.robot_status == "READY":
+            elif self.peeler.status_msg == "READY" and self.peeler.movement_state == "READY" and self.action_flag == "READY":
                 self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
