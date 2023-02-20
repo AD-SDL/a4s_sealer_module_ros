@@ -22,7 +22,7 @@ class BROOKS_PEELER_DRIVER():
         self.host_path = host_path
         self.baud_rate = baud_rate
         self.peeler_output = ""
-        self.status_var = ""
+        self.status_msg = ""
         # self.version = self.check_version()
         self.tape_remaining_var = 0
         self.sensor_threshold_var = 0
@@ -131,8 +131,8 @@ class BROOKS_PEELER_DRIVER():
 
         self.peeler_output = self.peeler_output + error_code_msg + '\n'
         
-        if "Error:" in error_code_msg:
-            self.error_msg = self.error_msg + error_code_msg + '\n'
+        # if "Error:" in error_code_msg:
+        self.error_msg = self.error_msg + error_code_msg + '\n'
 
 
     def get_status(self):
@@ -144,9 +144,11 @@ class BROOKS_PEELER_DRIVER():
         success_msg = "Displaying status:"
         err_msg = "Displaying status:"
         
-        return self.send_command(cmd_string, success_msg, err_msg)
-
-
+        status_response =  self.send_command(cmd_string, success_msg, err_msg)
+        msg_beggining = "*"
+        msg_end = ":"
+        self.status_msg = status_response[status_response.find(msg_beggining)+len(msg_beggining):status_response.rfind(msg_end)]
+        return status_response
     
     def check_version(self):
         '''
@@ -383,8 +385,9 @@ if __name__ == "__main__":
     '''
 
     peeler = BROOKS_PEELER_DRIVER("/dev/ttyUSB0")
-    print(peeler.get_status())
-    print(peeler.peeler_output)
+    peeler.get_status()
+    # print(peeler.status_msg)
+    # print(peeler.peeler_output)
     print(peeler.error_msg)
     # peeler.reset()
     # print(peeler.peel(1,2.5))
