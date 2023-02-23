@@ -14,7 +14,7 @@ def generate_launch_description():
 
     declare_use_sealer_port_cmd = DeclareLaunchArgument(
         name='sealer_port',
-        default_value="/dev/ttyUSB1",
+        default_value="/dev/ttyUSB0",
         description='Flag to accept sealer port number'
         )
     
