@@ -114,7 +114,7 @@ class PeelerClient(Node):
                 self.action_flag = "READY"
                 self.state = "UNKOWN"
 
-            elif self.state == "COMPLETED":
+            elif self.state == "COMPLETED" and self.action_flag == "BUSY":
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
@@ -204,13 +204,13 @@ class PeelerClient(Node):
                 self.state = "COMPLETED"
 
             finally:
-                self.get_logger().info('Finished Action: ' + request.action_handle)
+                self.get_logger().info('Finished Action: ' + request.action_handle.upper())
                 return response
 
 
         elif action_handle=="peel":
 
-            self.get_logger().info('Starting Action: ' + request.action_handle)
+            self.get_logger().info('Starting Action: ' + request.action_handle.upper())
 
             try:
                 self.peeler.seal_check()
