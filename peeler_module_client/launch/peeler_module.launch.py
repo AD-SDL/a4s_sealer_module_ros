@@ -14,7 +14,7 @@ def generate_launch_description():
     
     declare_use_peeler_port_cmd = DeclareLaunchArgument(
         name = "peeler_port",
-        default_value= "/dev/ttyUSB0",
+        default_value= "/dev/ttyUSB1",
         description= "Flag to accept peeler port"
         )
 

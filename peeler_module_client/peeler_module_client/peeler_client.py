@@ -30,7 +30,7 @@ class PeelerClient(Node):
         self.node_name = self.get_name()
 
 
-        self.declare_parameter('peeler_port', '/dev/ttyUSB0')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
+        self.declare_parameter('peeler_port', '/dev/ttyUSB1')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
         self.PORT = self.get_parameter('peeler_port').get_parameter_value().string_value     # Renaming parameter to general form so it can be used for other nodes too
         self.get_logger().info("Received Port: " + str(self.PORT))
 
@@ -38,7 +38,7 @@ class PeelerClient(Node):
         self.robot_status = ""
         self.action_flag = "READY"
         self.connect_robot()
-
+        sleep(2)
         self.description = {
             'name': self.node_name,
             'type':'',
