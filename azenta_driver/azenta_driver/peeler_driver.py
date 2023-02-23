@@ -28,6 +28,8 @@ class BROOKS_PEELER_DRIVER():
         self.sensor_threshold_var = 0
         self.error_msg = ""
         self.movement_state = "READY"
+        self.connection = None
+        self.connect_peeler()       
 
 
     def connect_peeler(self):
@@ -36,11 +38,10 @@ class BROOKS_PEELER_DRIVER():
         '''
 
         try:
-            ser = serial.Serial(self.host_path, self.baud_rate)
-        except:
+            self.connection = serial.Serial(self.host_path, self.baud_rate)
+        except serial.SerialException as connection_error:
             self.peeler_output = self.peeler_output + "Wrong port entered" + '\n'
-            pass
-        return ser  
+            print(connection_error)
 
 
     def response_fun(self, time_wait):                         
@@ -48,11 +49,10 @@ class BROOKS_PEELER_DRIVER():
         Records the data outputted by the Peeler and sets it to equal "" if no data is outputted in the provided time.
         '''
 
-        ser = self.connect_peeler()
         response_timer = time.time()
         while time.time() - response_timer < time_wait: 
-            if ser.in_waiting != 0:           
-                response = ser.read_until(expected=b'\r')
+            if self.connection.in_waiting != 0:           
+                response = self.connection.read_until(expected=b'\r')
                 response_string = response.decode('utf-8')
                 break
             else:
@@ -67,12 +67,10 @@ class BROOKS_PEELER_DRIVER():
         '''
 
         self.peeler_output = self.peeler_output+ 'Command: ' + command + "\n"
-        
-        ser = self.connect_peeler()        
-        ser.write(command.encode('utf-8'))        
-
         ready_timer = time.time()
         response_buffer = ""
+
+        self.connection.write(command.encode('utf-8'))
 
         # Waits till there is "ready" in the response_buffer indicating
         # the command is done executing.
@@ -132,7 +130,7 @@ class BROOKS_PEELER_DRIVER():
         self.peeler_output = self.peeler_output + error_code_msg + '\n'
         
         # if "Error:" in error_code_msg:
-        self.error_msg = self.error_msg + error_code_msg + '\n'
+        self.error_msg = error_code_msg
 
 
     def get_status(self):
@@ -384,12 +382,14 @@ if __name__ == "__main__":
     Runs given function.
     '''
 
-    peeler = BROOKS_PEELER_DRIVER("/dev/ttyUSB0")
-    peeler.get_status()
-    print(peeler.status_msg)
+    peeler = BROOKS_PEELER_DRIVER("/dev/ttyUSB1")
+    for i in range(20):
+        peeler.get_status()
+        print(peeler.status_msg)
+        time.sleep(1)
     # print(peeler.peeler_output)
-    print(peeler.error_msg)
-    peeler.reset()
+        # print(peeler.error_msg)
+        # peeler.reset()
     # print(peeler.peel(1,2.5))
     # print(peeler.get_status())
 
