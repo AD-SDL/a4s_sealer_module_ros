@@ -37,8 +37,11 @@ class PeelerClient(Node):
         self.state = 'UNKNOWN'
         self.robot_status = ""
         self.action_flag = "READY"
+        self.reset_request_count = 0
+
+        self.peeler = None
         self.connect_robot()
-        sleep(2)
+        sleep(1)
         self.description = {
             'name': self.node_name,
             'type':'',
@@ -51,8 +54,12 @@ class PeelerClient(Node):
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
+        state_refresher_cb_group = ReentrantCallbackGroup()
 
         timer_period = 1  # seconds
+        state_refresher_timer_period = 1 # seconds
+       
+        self.StateRefresherTimer = self.create_timer(state_refresher_timer_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
         self.statePub = self.create_publisher(String, self.node_name + "/state", 10)       # Publisher for peeler state
         self.stateTimer = self.create_timer(timer_period, self.stateCallback, callback_group=state_cb_group)   # Callback that publishes to peeler state
 
@@ -64,7 +71,6 @@ class PeelerClient(Node):
 
         try:
             self.peeler = BROOKS_PEELER_DRIVER(self.PORT)
-            self.peeler.connect_peeler()
 
         except Exception as err:
             self.state = "PEELER CONNECTION ERROR"
@@ -73,32 +79,39 @@ class PeelerClient(Node):
             self.get_logger().info("Peeler is online ")
             
 
+    def robot_state_refresher_callback(self):
+        
+        try:
+            if self.action_flag.upper() == "READY" and self.reset_request_count == 0: #Only refresh the state manualy if robot is not running a job.
+                self.peeler.get_status()
+ 
+            elif self.reset_request_count == 5: #Call the resetting function for one time at a time to ignore BUSY PORT erorrs. 
+                self.peeler.reset() #Resets the robot state. 
+                self.reset_request_count = 0
+
+        except Exception as err:
+            self.get_logger().error(str(err))
+
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
         msg = String()
 
         try:
-            self.peeler.get_status()
-
+            self.peeler
         except Exception as err:
             self.get_logger().error("PEELER IS NOT RESPONDING! ERROR: " + str(err))
             self.state = "PEELER CONNECTION ERROR"
 
 
         if self.state != "PEELER CONNECTION ERROR":
-            #TODO: EDIT THE DRIVER TO RECEIVE ACTUAL ROBOT STATUS
             
-            if self.state == "ERROR" or "NO ERRORS" not in self.peeler.error_msg.upper():
-                #TODO:Reseting errors out
-                self.state = "ERROR"
-                msg.data = 'State: %s' % self.state
+            if self.state == "ERROR" or "NO ERRORS" not in self.peeler.error_msg.upper() and self.peeler.error_msg != "":
+                msg.data = 'State: ERROR'
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
                 self.get_logger().error(self.peeler.error_msg.upper())
                 self.get_logger().warn('Trying to reset the Peeler')
-                res = self.peeler.reset()
-                rate = self.create_rate(15)
-                rate.sleep()
+                self.reset_request_count += 1
                 self.action_flag = "READY"
 
             elif self.state == "COMPLETED":
@@ -126,7 +139,7 @@ class PeelerClient(Node):
             self.get_logger().error(msg.data)
             self.get_logger().warn("Trying to connect again! PORT: " + str(self.PORT))
             self.action_flag = "READY"
-            self.connect_robot()
+            # self.connect_robot()
 
 
         # self.state = self.peeler.get_status()
