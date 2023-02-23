@@ -178,6 +178,16 @@ class PeelerClient(Node):
         -------
         None
         """
+        if self.state == "PEELER CONNECTION ERROR":
+            message = "Connection error, cannot accept a job!"
+            self.get_logger().error(message)
+            response.action_response = -1
+            response.action_msg = message
+            return response
+
+        while self.state != "READY":
+            self.get_logger().warn("Waiting for Peeler to switch READY state...")
+            sleep(0.2)
 
         action_handle = request.action_handle  # Run commands if manager sends corresponding command
         vars = eval(request.vars)
