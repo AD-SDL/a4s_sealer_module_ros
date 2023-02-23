@@ -186,7 +186,7 @@ class PeelerClient(Node):
         self.action_flag = "BUSY"
 
         if action_handle=="status":
-            self.get_logger().info('Starting Action: ' + request.action_handle)
+            self.get_logger().info('Starting Action: ' + request.action_handle.upper())
 
             try:
                 self.peeler.reset()
@@ -228,7 +228,7 @@ class PeelerClient(Node):
                 self.get_logger().info(response.action_msg)
 
             finally:
-                self.get_logger().info('Finished Action: ' + request.action_handle)
+                self.get_logger().info('Finished Action: ' + request.action_handle.upper())
                 return response
 
 
