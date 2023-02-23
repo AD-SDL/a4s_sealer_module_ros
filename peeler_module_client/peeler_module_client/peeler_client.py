@@ -112,6 +112,7 @@ class PeelerClient(Node):
                 self.get_logger().warn('Trying to reset the Peeler')
                 self.reset_request_count += 1
                 self.action_flag = "READY"
+                self.state = "UNKOWN"
 
             elif self.state == "COMPLETED":
                 msg.data = 'State: %s' % self.state
@@ -185,6 +186,7 @@ class PeelerClient(Node):
         self.action_flag = "BUSY"
 
         if action_handle=="status":
+            self.get_logger().info('Starting Action: ' + request.action_handle)
 
             try:
                 self.peeler.reset()
@@ -208,19 +210,22 @@ class PeelerClient(Node):
 
         elif action_handle=="peel":
 
+            self.get_logger().info('Starting Action: ' + request.action_handle)
 
             try:
-                self.peeler.peel_check()
+                self.peeler.seal_check()
                 self.peeler.peel(1, 2.5)            
             except Exception as err:
-                response.action_response = -1
-                response.action_msg = self.node_name + " Peel plate failed. Error: " + err
                 self.state = "ERROR"
+                response.action_response = -1
+                response.action_msg = str(self.node_name) + " Peel plate failed. Error: " + str(err)
+                self.get_logger().error(response.action_msg)
 
             else:    
-                response.action_response = 0
-                response.action_msg= self.node_name + " Peel plate successfully completed"
                 self.state = "COMPLETED"
+                response.action_response = 0
+                response.action_msg= str(self.node_name) + " Peel plate successfully completed"
+                self.get_logger().info(response.action_msg)
 
             finally:
                 self.get_logger().info('Finished Action: ' + request.action_handle)
