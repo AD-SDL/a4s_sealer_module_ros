@@ -38,10 +38,9 @@ class PeelerClient(Node):
         self.robot_status = ""
         self.action_flag = "READY"
         self.reset_request_count = 0
-
         self.peeler = None
         self.connect_robot()
-        sleep(1)
+
         self.description = {
             'name': self.node_name,
             'type':'',
