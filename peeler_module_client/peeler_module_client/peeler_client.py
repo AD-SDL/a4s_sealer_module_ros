@@ -139,10 +139,9 @@ class PeelerClient(Node):
             self.get_logger().error(msg.data)
             self.get_logger().warn("Trying to connect again! PORT: " + str(self.PORT))
             self.action_flag = "READY"
-            # self.connect_robot()
+            self.connect_robot()
 
 
-        # self.state = self.peeler.get_status()
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
