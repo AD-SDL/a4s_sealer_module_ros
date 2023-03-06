@@ -169,7 +169,11 @@ if __name__ == "__main__":
     Runs given function.
     '''
 
-    dummy_seal = A4S_SEALER_DRIVER("/dev/ttyUSB0")
+    sealer = A4S_SEALER_DRIVER("/dev/ttyUSB0")
+    sealer.get_status()
+    sealer.reset()
+    sealer.get_status()
+    sealer.get_error()
     # dummy_seal.reset()
     # dummy_seal.reset()
     
