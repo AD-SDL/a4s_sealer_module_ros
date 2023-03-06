@@ -24,7 +24,8 @@ class A4S_SEALER_DRIVER():
 
         self.host_path = host_path
         self.baud_rate = baud_rate
-        ser = self.connect_sealer()
+        self.connection = None
+        self.connect_sealer()
         self.output=''
         self.status = ''
         self.heat=''
@@ -36,22 +37,19 @@ class A4S_SEALER_DRIVER():
 
         #Connect to serial port / If wrong port entered inform user 
         try:
-            ser = serial.Serial(self.host_path, self.baud_rate)
-        except:
-            print("Wrong port entered")
-            pass
-        return ser
+            self.connection = serial.Serial(self.host_path, self.baud_rate)
+        except serial.SerialException as connection_error:
+            print(connection_error)     
 
     def response_fun(self, time_wait):                         
         '''
         Records the data outputted by the Peeler and sets it to equal "" if no data is outputted in the provided time.
         '''
 
-        ser = self.connect_sealer()
         response_timer = time.time()
         while time.time() - response_timer < time_wait: 
-            if ser.in_waiting != 0:           
-                response = ser.read_until(expected=b'!')
+            if self.connection.in_waiting != 0:           
+                response = self.connection.read_until(expected=b'!')
                 response_string = response.decode('utf-8')
                 response_string_pat = re.search(r"=\d+,(\d+),(\d+),\d+,\d+,\d+", response_string)
                 if response_string_pat:
@@ -70,8 +68,7 @@ class A4S_SEALER_DRIVER():
 
         self.output = self.output+ 'Command: ' + command + "\n"
         
-        ser = self.connect_sealer()
-        ser.write(command.encode('utf-8'))        
+        self.connection.write(command.encode('utf-8'))        
 
         ready_timer = time.time()
         response_buffer = ""
@@ -174,5 +171,5 @@ if __name__ == "__main__":
 
     dummy_seal = A4S_SEALER_DRIVER("/dev/ttyUSB0")
     # dummy_seal.reset()
-    dummy_seal.reset()
+    # dummy_seal.reset()
     
