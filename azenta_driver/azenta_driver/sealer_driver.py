@@ -93,9 +93,7 @@ class A4S_SEALER_DRIVER():
 
     def get_status(self,timeout=500):
 
-        self.movement_state = "BUSY"
         self.response_fun(timeout)     
-        self.movement_state = "READY"
 
     def get_error(self):
         pass
