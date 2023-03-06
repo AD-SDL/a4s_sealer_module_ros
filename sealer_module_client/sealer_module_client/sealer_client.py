@@ -36,6 +36,9 @@ class SealerClient(Node):
         
         self.get_logger().info("Received Port: " + str(self.PORT))
         self.state = "UNKOWN"
+        self.robot_status = ""
+        self.action_flag = "READY"
+        self.reset_request_count = 0
         self.connect_robot()
 
         self.description = {
@@ -67,6 +70,19 @@ class SealerClient(Node):
             self.state = "SEALER CONNECTION ERROR"
         else:
             self.get_logger().info("Sealer is online")
+
+    def robot_state_refresher_callback(self):
+        
+        try:
+            if self.action_flag.upper() == "READY" and self.reset_request_count == 0: #Only refresh the state manualy if robot is not running a job.
+                self.peeler.get_status()
+ 
+            elif self.reset_request_count == 5: #Call the resetting function for one time at a time to ignore BUSY PORT erorrs. 
+                self.peeler.reset() #Resets the robot state. 
+                self.reset_request_count = 0
+
+        except Exception as err:
+            self.get_logger().error(str(err))
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
