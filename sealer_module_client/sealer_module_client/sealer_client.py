@@ -55,8 +55,8 @@ class SealerClient(Node):
         state_cb_group = ReentrantCallbackGroup()       
         state_refresher_cb_group = ReentrantCallbackGroup()
 
-        timer_period = 1  # seconds
-        state_refresher_timer_period = 1 # seconds
+        timer_period = 0.5  # seconds
+        state_refresher_timer_period = 0.5 # seconds
        
         self.StateRefresherTimer = self.create_timer(state_refresher_timer_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
    
@@ -95,7 +95,7 @@ class SealerClient(Node):
 
         try:
             sealer_msg = self.sealer.status_msg
-            # self.get_logger().info(sealer_msg)
+            # self.get_logger().info(str(sealer_msg))
 
         except Exception as err:
             self.get_logger().error("SEALER IS NOT RESPONDING! ERROR: " + str(err))
@@ -125,7 +125,7 @@ class SealerClient(Node):
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-            elif self.sealer.status_msg == "READY" and self.sealer.movement_state == "READY" and self.action_flag == "READY":
+            elif self.sealer.status_msg == 0 and self.sealer.movement_state == "READY" and self.action_flag == "READY":
                 self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
