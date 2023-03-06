@@ -59,6 +59,7 @@ class PeelerClient(Node):
         state_refresher_timer_period = 1 # seconds
        
         self.StateRefresherTimer = self.create_timer(state_refresher_timer_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
+       
         self.statePub = self.create_publisher(String, self.node_name + "/state", 10)       # Publisher for peeler state
         self.stateTimer = self.create_timer(timer_period, self.stateCallback, callback_group=state_cb_group)   # Callback that publishes to peeler state
 
@@ -96,7 +97,8 @@ class PeelerClient(Node):
         msg = String()
 
         try:
-            self.peeler
+            peeler_msg = self.peeler.status_msg
+            # self.get_logger().info(peeler_msg)
         except Exception as err:
             self.get_logger().error("PEELER IS NOT RESPONDING! ERROR: " + str(err))
             self.state = "PEELER CONNECTION ERROR"
