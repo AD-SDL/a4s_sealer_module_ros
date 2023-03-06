@@ -383,13 +383,13 @@ if __name__ == "__main__":
     '''
 
     peeler = BROOKS_PEELER_DRIVER("/dev/ttyUSB1")
-    for i in range(20):
-        peeler.get_status()
-        print(peeler.status_msg)
-        time.sleep(1)
+    # for i in range(20):
+    #     peeler.get_status()
+    #     print(peeler.status_msg)
+    #     time.sleep(1)
     # print(peeler.peeler_output)
         # print(peeler.error_msg)
-        # peeler.reset()
+    peeler.reset()
     # print(peeler.peel(1,2.5))
     # print(peeler.get_status())
 
