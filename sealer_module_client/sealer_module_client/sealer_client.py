@@ -199,7 +199,7 @@ class SealerClient(Node):
 
                 time = vars.get('time',3)
                 temp = vars.get('temp',175)
-                
+
                 self.sealer.seal()
                 sleep(10)  
                    
@@ -219,8 +219,6 @@ class SealerClient(Node):
                 self.get_logger().info('Finished Action: ' + request.action_handle.upper())
                 return response
             
-
-
         else: 
             msg = "UNKOWN ACTION REQUEST! Available actions: seal"
             response.action_response = -1
