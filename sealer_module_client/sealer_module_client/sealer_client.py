@@ -173,26 +173,52 @@ class SealerClient(Node):
         -------
         None
         """
-        
-        if request.action_handle=='seal':
-            # self.state = "BUSY"
-            # self.stateCallback()
-            vars = eval(request.vars)
-            print(vars)
-
-            time = vars.get('time',3)
-            temp = vars.get('temp',175)
-            
-            #self.sealer.set_time(3)
-            #self.sealer.set_temp(175)
-            self.sealer.seal()
-            sleep(10)
-            response.action_response = 0
-            response.action_msg= "all good sealer"
-            self.get_logger().info('Finished Action: ' + request.action_handle)
-            self.state = "COMPLETED"
-
+        if self.state == "SEALER CONNECTION ERROR":
+            message = "Connection error, cannot accept a job!"
+            self.get_logger().error(message)
+            response.action_response = -1
+            response.action_msg = message
             return response
+
+        while self.state != "READY":
+            self.get_logger().warn("Waiting for Sealer to switch READY state...")
+            sleep(0.2)
+
+        action_handle = request.action_handle  # Run commands if manager sends corresponding command
+        vars = eval(request.vars)
+        self.get_logger().info(str(vars))
+        
+        self.action_flag = "BUSY"
+        
+        if action_handle == 'seal':
+            self.get_logger().info('Starting Action: ' + request.action_handle.upper())
+
+            try:
+                #self.sealer.set_time(3)
+                #self.sealer.set_temp(175)
+
+                time = vars.get('time',3)
+                temp = vars.get('temp',175)
+                
+                self.sealer.seal()
+                sleep(10)  
+                   
+            except Exception as err:
+                self.state = "ERROR"
+                response.action_response = -1
+                response.action_msg = str(self.node_name) + " Seal plate failed. Error: " + str(err)
+                self.get_logger().error(response.action_msg)
+
+            else:    
+                self.state = "COMPLETED"
+                response.action_response = 0
+                response.action_msg= str(self.node_name) + " Seal plate successfully completed"
+                self.get_logger().info(response.action_msg)
+
+            finally:
+                self.get_logger().info('Finished Action: ' + request.action_handle.upper())
+                return response
+            
 
 
         else: 
