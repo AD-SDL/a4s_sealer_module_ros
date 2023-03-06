@@ -193,7 +193,7 @@ class PeelerClient(Node):
 
         action_handle = request.action_handle  # Run commands if manager sends corresponding command
         vars = eval(request.vars)
-        print(vars)
+        self.get_logger().info(str(vars))
         
         self.action_flag = "BUSY"
 
