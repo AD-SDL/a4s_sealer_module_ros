@@ -52,9 +52,14 @@ class SealerClient(Node):
 
         action_cb_group = ReentrantCallbackGroup()
         description_cb_group = ReentrantCallbackGroup()
-        state_cb_group = ReentrantCallbackGroup()
+        state_cb_group = ReentrantCallbackGroup()       
+        state_refresher_cb_group = ReentrantCallbackGroup()
 
         timer_period = 1  # seconds
+        state_refresher_timer_period = 1 # seconds
+       
+        self.StateRefresherTimer = self.create_timer(state_refresher_timer_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
+   
         self.statePub = self.create_publisher(String, node_name + "/state", 10)       # Publisher for sealer state
         self.stateTimer = self.create_timer(timer_period, self.stateCallback, callback_group=state_cb_group)   # Callback that publishes to sealer state
 
@@ -75,10 +80,10 @@ class SealerClient(Node):
         
         try:
             if self.action_flag.upper() == "READY" and self.reset_request_count == 0: #Only refresh the state manualy if robot is not running a job.
-                self.peeler.get_status()
+                self.sealer.get_status()
  
             elif self.reset_request_count == 5: #Call the resetting function for one time at a time to ignore BUSY PORT erorrs. 
-                self.peeler.reset() #Resets the robot state. 
+                self.sealer.reset() #Resets the robot state. 
                 self.reset_request_count = 0
 
         except Exception as err:
@@ -89,32 +94,43 @@ class SealerClient(Node):
         msg = String()
 
         try:
-            state = self.sealer.get_status()
-            # lid_status = #TODO :CHECK LID STATUS?
+            sealer_msg = self.sealer.status_msg
+            # self.get_logger().info(sealer_msg)
 
         except Exception as err:
-            self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
+            self.get_logger().error("SEALER IS NOT RESPONDING! ERROR: " + str(err))
             self.state = "SEALER CONNECTION ERROR"
 
         if self.state != "SEALER CONNECTION ERROR":
-            #TODO: EDIT THE DRIVER TO RECEIVE ACTUAL ROBOT STATUS
-            if state == "Ready":
-                self.state = "READY"
+            
+            if self.state == "ERROR" or "NO ERRORS" not in self.sealer.error_msg.upper() and self.sealer.error_msg != "":
+                msg.data = 'State: ERROR'
+                self.statePub.publish(msg)
+                self.get_logger().error(msg.data)
+                self.get_logger().error(self.sealer.error_msg.upper())
+                self.get_logger().warn('Trying to reset the Sealer')
+                self.reset_request_count += 1
+                self.action_flag = "READY"
+                self.state = "UNKOWN"
+
+            elif self.state == "COMPLETED" and self.action_flag == "BUSY":
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
+                self.action_flag = "READY"   
 
-            elif state == "RUNNING":
+            elif self.sealer.movement_state == "BUSY" or self.action_flag == "BUSY":
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-            elif state == "ERROR":
-                self.state = "ERROR"
+            elif self.sealer.status_msg == "READY" and self.sealer.movement_state == "READY" and self.action_flag == "READY":
+                self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
-                self.get_logger().error(msg.data)
+                self.get_logger().info(msg.data)
+
         else:
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
