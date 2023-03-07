@@ -71,7 +71,7 @@ class SealerClient(Node):
         try:
             self.sealer = A4S_SEALER_DRIVER(self.PORT)
         except Exception as err:
-            self.get_logger().error("SEALER CONNECTION ERROR! ERROR: " + str(err))
+            self.get_logger().error("SEALER CONNECTION ERROR! " + str(err))
             self.state = "SEALER CONNECTION ERROR"
         else:
             self.get_logger().info("Sealer is online")
