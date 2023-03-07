@@ -17,7 +17,7 @@ class A4S_SEALER_DRIVER():
     Serial Communication Messages from the Robot:
                  - Responses begin with a "0" if the command was successful, or a negative error code number
     """
-    def __init__(self, host_path, baud_rate=19200):
+    def __init__(self, host_path, baud_rate = 19200):
         '''
         This function initializes the data to be called and modified in other locations in the client.
         '''
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     sealer.get_status()
     # sealer.reset()
     # sealer.open_gate()
-    sealer.seal()
+    # sealer.seal()
     sealer.get_status()
     # sealer.get_error()
     # dummy_seal.reset()
