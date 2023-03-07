@@ -75,7 +75,7 @@ class A4S_SEALER_DRIVER():
 
         ready_timer = time.time()
         response_buffer = ""
-
+        # response_msg = self.get_status(timeout)
         while self.status_msg!=0:
             response_msg = self.get_status(timeout)
             print(self.status_msg)
@@ -184,11 +184,13 @@ if __name__ == "__main__":
     '''
 
     sealer = A4S_SEALER_DRIVER("/dev/ttyUSB0")
-    sealer.get_status()
+    # sealer.get_status()
     # sealer.reset()
-    # sealer.open_gate()
+    sealer.close_gate()
+    time.sleep(5)
+    sealer.open_gate()
     # sealer.seal()
-    sealer.get_status()
+    # sealer.get_status()
     # sealer.get_error()
     # dummy_seal.reset()
     # dummy_seal.reset()
