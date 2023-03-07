@@ -39,9 +39,8 @@ class BROOKS_PEELER_DRIVER():
 
         try:
             self.connection = serial.Serial(self.host_path, self.baud_rate)
-        except serial.SerialException as connection_error:
-            self.peeler_output = self.peeler_output + "Wrong port entered" + '\n'
-            print(connection_error)
+        except:
+            raise Exception("Could not establish connection")    
 
 
     def response_fun(self, time_wait):                         
