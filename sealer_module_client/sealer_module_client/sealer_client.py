@@ -28,7 +28,7 @@ class SealerClient(Node):
         """Setup sealer node"""
 
         super().__init__(TEMP_NODE_NAME)
-        node_name = self.get_name()
+        self.node_name = self.get_name()
 
 
         self.declare_parameter('sealer_port', '/dev/ttyUSB1')       # Declaring parameter so it is able to be retrieved from module_params.yaml file
@@ -42,7 +42,7 @@ class SealerClient(Node):
         self.connect_robot()
 
         self.description = {
-            'name': node_name,
+            'name': self.node_name,
             'type':'',
             'actions':
             {
@@ -60,11 +60,11 @@ class SealerClient(Node):
        
         self.StateRefresherTimer = self.create_timer(state_refresher_timer_period, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
    
-        self.statePub = self.create_publisher(String, node_name + "/state", 10)       # Publisher for sealer state
+        self.statePub = self.create_publisher(String, self.node_name + "/state", 10)       # Publisher for sealer state
         self.stateTimer = self.create_timer(timer_period, self.stateCallback, callback_group=state_cb_group)   # Callback that publishes to sealer state
 
-        self.actionSrv = self.create_service(WeiActions, node_name + "/action_handler", self.actionCallback, callback_group=action_cb_group)
-        self.descriptionSrv = self.create_service(WeiDescription, node_name + "/description_handler", self.descriptionCallback, callback_group=description_cb_group)
+        self.actionSrv = self.create_service(WeiActions, self.node_name + "/action_handler", self.actionCallback, callback_group=action_cb_group)
+        self.descriptionSrv = self.create_service(WeiDescription, self.node_name + "/description_handler", self.descriptionCallback, callback_group=description_cb_group)
 
     def connect_robot(self):
         """Connect robot"""
@@ -103,7 +103,7 @@ class SealerClient(Node):
 
         if self.state != "SEALER CONNECTION ERROR":
             
-            if self.state == "ERROR" or "NO ERRORS" not in self.sealer.error_msg.upper() and self.sealer.error_msg != "":
+            if self.state == "ERROR" or self.sealer.status_msg == 3:
                 msg.data = 'State: ERROR'
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
@@ -119,13 +119,13 @@ class SealerClient(Node):
                 self.get_logger().info(msg.data)
                 self.action_flag = "READY"   
 
-            elif self.sealer.movement_state == "BUSY" or self.action_flag == "BUSY":
+            elif self.sealer.status_msg == 1 or self.sealer.status_msg == 2 or self.sealer.status_msg == 4 or self.action_flag == "BUSY":
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-            elif self.sealer.status_msg == 0 and self.sealer.movement_state == "READY" and self.action_flag == "READY":
+            elif self.sealer.status_msg == 0 and self.action_flag == "READY":
                 self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
