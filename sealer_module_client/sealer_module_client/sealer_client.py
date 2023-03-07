@@ -40,7 +40,6 @@ class SealerClient(Node):
         self.action_flag = "READY"
         self.reset_request_count = 0
         self.connect_robot()
-        sleep(2)
         self.description = {
             'name': self.node_name,
             'type':'',
