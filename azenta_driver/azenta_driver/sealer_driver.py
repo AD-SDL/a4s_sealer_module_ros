@@ -30,7 +30,6 @@ class A4S_SEALER_DRIVER():
         self.status_msg = ''
         self.heat=''
         self.error_msg = ""
-        self.movement_state = "READY"
 
 
 
@@ -45,9 +44,9 @@ class A4S_SEALER_DRIVER():
         except serial.SerialException as connection_error:
             print(connection_error)     
 
-    def response_fun(self, time_wait):                         
+    def get_status(self, time_wait = 500):                         
         '''
-        Records the data outputted by the Peeler and sets it to equal "" if no data is outputted in the provided time.
+        Records the data outputted by the Sealer and sets it to equal "" if no data is outputted in the provided time.
         '''
 
         response_timer = time.time()
@@ -78,12 +77,12 @@ class A4S_SEALER_DRIVER():
         response_buffer = ""
 
         while self.status_msg!=0:
-            new_string = self.response_fun(timeout)
-            print(new_string)
-            if new_string != "":
-                self.sealer_output_msg = self.sealer_output_msg + new_string + '\n'
+            response_msg = self.get_status(timeout)
+            print(self.status_msg)
+            if response_msg != "":
+                self.sealer_output_msg = self.sealer_output_msg + response_msg + '\n'
 
-            response_buffer = response_buffer + new_string
+            response_buffer = response_buffer + response_msg
             
             if time.time() - ready_timer > 20:
                 print('timed out')
@@ -91,9 +90,6 @@ class A4S_SEALER_DRIVER():
 
         return response_buffer
 
-    def get_status(self,timeout=500):
-
-        self.response_fun(timeout)     
 
     def get_error(self):
         pass
@@ -102,41 +98,35 @@ class A4S_SEALER_DRIVER():
         '''
         Clears error status/resets shuttle.
         '''
-        self.movement_state = "BUSY"
 
         cmd_string = '*00SR=zz!'
         success_msg = "Conducting System Reset"
         err_msg = "Failed to Conduct System Reset"
         self.send_command(cmd_string, success_msg, err_msg)
 
-        self.movement_state = "READY"
 
     def open_gate(self):
         '''
         Opens shuttle
         '''
-        self.movement_state = "BUSY"
 
         cmd_string = '*00MO=zz!'
         success_msg = "Opening Gate"
         err_msg = "Failed to Open Gate"
         self.send_command(cmd_string, success_msg, err_msg)
 
-        self.movement_state = "READY"
 
 
     def close_gate(self):
         '''
         Closes shuttle
         '''
-        self.movement_state = "BUSY"
 
         cmd_string = '*00MC=zz!'
         success_msg = "Closing Gate"
         err_msg = "Failed to Close Gate"          
         self.send_command(cmd_string, success_msg, err_msg)
 
-        self.movement_state = "READY"
 
 
     def set_temp(self, temp=175):
@@ -144,7 +134,6 @@ class A4S_SEALER_DRIVER():
         Adjusts seal to given temperature.
         '''
 
-        self.movement_state = "BUSY"
 
         temp = str(temp).zfill(4)
         cmd_string = f'*00DH={temp}zz!'
@@ -152,14 +141,12 @@ class A4S_SEALER_DRIVER():
         err_msg = "Failed to Set Temp. to %d°"%(temp)         
         self.send_command(cmd_string, success_msg, err_msg)
 
-        self.movement_state = "READY"
 
        
     def set_time(self, time=3.0):
         '''
         Adjusts seal time to given time.
         '''
-        self.movement_state = "BUSY"
 
         time = str(int(time*10)).zfill(4)
         cmd_string = f'*00DT={time}zz!'
@@ -167,32 +154,27 @@ class A4S_SEALER_DRIVER():
         err_msg = "Failed to Set Seal Time to %s S"%(time)
         self.send_command(cmd_string, success_msg, err_msg)
 
-        self.movement_state = "READY"
 
     def seal(self):
         '''
         Conducts seal action.
         '''
 
-        self.movement_state = "BUSY"
 
         cmd_string = '*00GS=zz!'
         success_msg = "Sealing"
         err_msg = "Failed to Seal"
         self.send_command(cmd_string, success_msg, err_msg)
 
-        self.movement_state = "READY"
 
     def config_robot(self, temp,time):
         '''
         Sets robot to given permission/time
         '''
-        self.movement_state = "BUSY"
 
         self.set_temp(temp)
         self.set_time()
 
-        self.movement_state = "READY"
 
 
 
@@ -203,9 +185,11 @@ if __name__ == "__main__":
 
     sealer = A4S_SEALER_DRIVER("/dev/ttyUSB0")
     sealer.get_status()
-    sealer.reset()
+    # sealer.reset()
+    # sealer.open_gate()
+    sealer.seal()
     sealer.get_status()
-    sealer.get_error()
+    # sealer.get_error()
     # dummy_seal.reset()
     # dummy_seal.reset()
     
