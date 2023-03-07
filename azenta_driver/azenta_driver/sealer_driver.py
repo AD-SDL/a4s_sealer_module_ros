@@ -38,7 +38,6 @@ class A4S_SEALER_DRIVER():
         Connect to serial port / If wrong port entered inform user 
         '''
 
-        #Connect to serial port / If wrong port entered inform user 
         try:
             self.connection = serial.Serial(self.host_path, self.baud_rate)
         except serial.SerialException as connection_error:
@@ -183,12 +182,12 @@ if __name__ == "__main__":
     Runs given function.
     '''
 
-    sealer = A4S_SEALER_DRIVER("/dev/ttyUSB0")
+    sealer = A4S_SEALER_DRIVER("/dev/ttyUSB")
     # sealer.get_status()
     # sealer.reset()
-    sealer.close_gate()
+    # sealer.close_gate()
     time.sleep(5)
-    sealer.open_gate()
+    # sealer.open_gate()
     # sealer.seal()
     # sealer.get_status()
     # sealer.get_error()
