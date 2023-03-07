@@ -40,8 +40,8 @@ class A4S_SEALER_DRIVER():
 
         try:
             self.connection = serial.Serial(self.host_path, self.baud_rate)
-        except serial.SerialException as connection_error:
-            print(connection_error)     
+        except:
+            raise Exception("Could not establish connection")     
 
     def get_status(self, time_wait = 500):                         
         '''
