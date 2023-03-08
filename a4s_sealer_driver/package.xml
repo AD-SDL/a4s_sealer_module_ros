@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>azenta_driver</name>
+  <name>a4s_sealer_driver</name>
   <version>0.0.0</version>
-  <description>Azenta driver for Sealer and Peeler</description>
+  <description>Sealer Driver</description>
   <maintainer email="ravescovi@anl.gov">Rafael Vescovi and Doga Ozgulbas and Alan Wang</maintainer>
   <license>MIT License</license>
 
