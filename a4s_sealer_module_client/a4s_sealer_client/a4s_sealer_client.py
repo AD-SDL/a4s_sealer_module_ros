@@ -17,7 +17,7 @@ from time import sleep
 from azenta_driver.sealer_driver import A4S_SEALER_DRIVER  # import sealer driver
 
 
-class SealerClient(Node):
+class A4sSealerClient(Node):
 
     """
     The init function is neccesary for the sealerNode class to initialize all variables, parameters, and other functions.
@@ -233,7 +233,7 @@ def main(args=None):
     rclpy.init(args=args)  # initialize Ros2 communication
 
     try:
-        sealer_client = SealerClient()
+        sealer_client = A4sSealerClient()
         executor = MultiThreadedExecutor()
         executor.add_node(sealer_client)
 

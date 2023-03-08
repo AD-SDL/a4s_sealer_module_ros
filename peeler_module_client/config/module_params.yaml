@@ -1,4 +1,0 @@
-peelerNode:
-  ros__parameters:
-    peeler_port: "/dev/ttyUSB0"
-

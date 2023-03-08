@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 from glob import glob
 
-package_name = 'sealer_module_client'
+package_name = 'a4s_sealer_description'
 
 setup(
     name=package_name,
@@ -13,19 +13,21 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
-        (os.path.join('share', package_name, 'config'), glob('config/*.yaml'))
+        (os.path.join('share', package_name, 'urdf'), glob('urdf/*')),
+        (os.path.join('share', package_name, 'meshes'), glob('meshes/*')),
+        (os.path.join('share', package_name, 'config'), glob('config/*'))  
     ],
+
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Doga Ozgulbas and decarabas',
+    maintainer='Doga Ozgulbas',
     maintainer_email='dozgulbas@anl.gov',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'sealer_client= sealer_module_client.sealer_client:main',
+            'a4s_sealer_description_client = a4s_sealer_description.a4s_sealer_description_client:main',
         ],
     },
 )
-

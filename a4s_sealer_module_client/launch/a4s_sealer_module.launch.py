@@ -20,9 +20,9 @@ def generate_launch_description():
     
 
     sealer=Node(
-        package='sealer_module_client',
+        package='a4s_sealer_client',
         namespace = 'std_ns',
-        executable='sealer_client',
+        executable='a4s_sealer_client',
         name='SealerNode',
         parameters = [{"sealer_port":sealer_port}],            
         emulate_tty=True

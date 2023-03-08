@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 from glob import glob
 
-package_name = 'azenta_description'
+package_name = 'a4s_sealer_client'
 
 setup(
     name=package_name,
@@ -13,23 +13,19 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
-        (os.path.join('share', package_name, 'urdf'), glob('urdf/*')),
-        (os.path.join('share', package_name, 'meshes'), glob('meshes/*')),
-        (os.path.join('share', package_name, 'config'), glob('config/*'))  
+        (os.path.join('share', package_name, 'config'), glob('config/*.yaml'))
     ],
-
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Doga Ozgulbas',
+    maintainer='Doga Ozgulbas and decarabas',
     maintainer_email='dozgulbas@anl.gov',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'azenta_description_client = azenta_description.azenta_description_client:main',
-            'sealer_description_client = azenta_description.sealer_description_client:main',
-            'peeler_description_client = azenta_description.peeler_description_client:main'
+            'a4s_sealer_client= a4s_sealer_client.a4s_sealer_client:main',
         ],
     },
 )
+
