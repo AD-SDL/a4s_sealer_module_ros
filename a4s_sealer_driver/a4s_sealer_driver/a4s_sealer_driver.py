@@ -182,8 +182,10 @@ if __name__ == "__main__":
     Runs given function.
     '''
 
-    sealer = A4S_SEALER_DRIVER("/dev/ttyUSB")
-    # sealer.get_status()
+    sealer = A4S_SEALER_DRIVER("/dev/ttyUSB2")
+    sealer.get_status()
+
+    print(sealer.status_msg)
     # sealer.reset()
     # sealer.close_gate()
     time.sleep(5)
