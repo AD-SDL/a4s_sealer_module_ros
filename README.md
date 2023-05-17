@@ -42,8 +42,5 @@ This package guides a user to install a4s_sealer_module package, remotely contro
  - Port name can be specified as `ros2 launch a4s_sealer_client a4s_sealer_client.launch.py sealer_port:=/dev/ttyUSB1`
 <p>&nbsp;</p>
 
-## User Guide
-1. ### Find and setup port
-	* Connect Selaer Driver to device with a serial to usb cable.
-	* Find Sealer port ex: "/dev/ttyUSB0" 
+
 		
