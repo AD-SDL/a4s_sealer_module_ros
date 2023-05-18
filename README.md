@@ -19,8 +19,8 @@ This package guides a user to install a4s_sealer_module package, remotely contro
 
 3. ### Install Brooks Sealer Driver
     #### Creating a conda/venv environment.
-    - `conda create -n selaer-driver python=3.9`
-    - `conda activate selaer-driver`
+    - `conda create -n sealer-driver python=3.9`
+    - `conda activate sealer-driver`
 
     #### Python Install 
     - `cd ~/wei_ws/src/a4s_sealer_module/a4s_sealer_driver`
