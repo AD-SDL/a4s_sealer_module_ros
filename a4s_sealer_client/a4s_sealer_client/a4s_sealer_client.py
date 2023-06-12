@@ -13,7 +13,7 @@ from wei_services.srv import WeiActions, WeiDescription
 from time import sleep
 import json
 
-from azenta_driver.sealer_driver import A4S_SEALER_DRIVER  # import sealer driver
+from a4s_sealer_driver.a4s_sealer_driver import A4S_SEALER_DRIVER  # import sealer driver
 
 
 class A4sSealerClient(Node):
